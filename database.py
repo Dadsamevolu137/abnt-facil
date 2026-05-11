@@ -10,14 +10,12 @@ def get_connection():
         port=int(os.getenv("MYSQL_PORT", 3306)),
         user=os.getenv("MYSQL_USER", "root"),
         password=os.getenv("MYSQL_PASSWORD", ""),
-        database=os.getenv("MYSQL_DATABASE", "abnt_saas")
+        database=os.getenv("MYSQL_DATABASE", "defaultdb")
     )
 
 def init_db():
-    """Cria tabelas se não existirem."""
     conn = get_connection()
     cur = conn.cursor()
-
     cur.execute("""
         CREATE TABLE IF NOT EXISTS usuarios (
             id          INT AUTO_INCREMENT PRIMARY KEY,
@@ -31,11 +29,10 @@ def init_db():
             limite_pdfs  INT DEFAULT 1
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
     """)
-
     conn.commit()
     cur.close()
     conn.close()
-    print("✓ Banco de dados inicializado.")
+    print("Banco de dados inicializado.")
 
 if __name__ == "__main__":
     init_db()
