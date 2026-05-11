@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ABNT.fácil — Formatação automática</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/style.css" />
+</head>
+<body>
+
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">ABNT<span>.fácil</span></div>
+      <div class="header-right">
+        <div class="uso-counter">
+          <span class="uso-num" id="uso-num">{{ free_limit - guest_count }}</span>
+          <span class="uso-label">PDFs restantes</span>
+        </div>
+        <button class="btn-conta" onclick="abrirModalConta()">Criar conta grátis</button>
+      </div>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="hero-badge">✦ Formatação ABNT automática</div>
+      <h1>Seu trabalho formatado<br/><em>em segundos</em></h1>
+      <p class="hero-sub">Cole o texto, confirmamos a estrutura detectada e geramos o PDF formatado em ABNT.</p>
+      <div class="hero-stats">
+        <div class="stat"><strong>ABNT NBR 14724</strong><span>Norma atualizada</span></div>
+        <div class="stat-div"></div>
+        <div class="stat"><strong>100% gratuito</strong><span>Primeiros {{ free_limit }} PDFs</span></div>
+        <div class="stat-div"></div>
+        <div class="stat"><strong>Detecção automática</strong><span>Introdução, métodos...</span></div>
+      </div>
+    </div>
+  </section>
+
+  <main class="main-content">
+    <div class="form-container">
+
+      <!-- PROGRESS BAR -->
+      <div class="progress-bar">
+        <div class="progress-step active" data-step="1"><span class="step-num">1</span><span class="step-label">Identificação</span></div>
+        <div class="progress-line"></div>
+        <div class="progress-step" data-step="2"><span class="step-num">2</span><span class="step-label">Texto</span></div>
+        <div class="progress-line"></div>
+        <div class="progress-step" data-step="3"><span class="step-num">3</span><span class="step-label">Confirmar estrutura</span></div>
+        <div class="progress-line"></div>
+        <div class="progress-step" data-step="4"><span class="step-num">4</span><span class="step-label">Referências</span></div>
+      </div>
+
+      <form id="form-abnt" novalidate>
+
+        <!-- ETAPA 1: IDENTIFICAÇÃO -->
+        <div class="etapa" id="etapa-1">
+          <div class="etapa-header">
+            <h2>Identificação do trabalho</h2>
+            <p>Informações que aparecem na capa e folha de rosto</p>
+          </div>
+
+          <div class="campo">
+            <label>Logo da instituição <span class="dica">(PNG ou JPG, opcional)</span></label>
+            <div class="logo-upload-area" id="logo-upload-area" onclick="document.getElementById('logo-input').click()">
+              <div class="logo-placeholder" id="logo-placeholder">
+                <span class="logo-icon">⬆</span>
+                <span>Clique para enviar o logo</span>
+                <span class="logo-hint">PNG ou JPG • Máx. 5MB</span>
+              </div>
+              <div class="logo-preview oculto" id="logo-preview">
+                <img id="logo-img" src="" alt="Logo" />
+                <button type="button" class="logo-remover" onclick="removerLogo(event)">✕ Remover</button>
+              </div>
+            </div>
+            <input type="file" id="logo-input" accept=".png,.jpg,.jpeg" style="display:none" onchange="uploadLogo(this)" />
+          </div>
+
+          <div class="campo-grupo">
+            <div class="campo obrigatorio">
+              <label for="titulo">Título do trabalho <span class="req">*</span></label>
+              <input type="text" id="titulo" name="titulo" placeholder="Ex: Determinação do teor de álcool na gasolina" />
+            </div>
+            <div class="campo obrigatorio">
+              <label for="autor">Autores <span class="req">*</span> <span class="dica">(separe por vírgula)</span></label>
+              <input type="text" id="autor" name="autor" placeholder="Ex: Ana Silva, João Souza" />
+            </div>
+          </div>
+
+          <div class="campo-grupo">
+            <div class="campo"><label for="instituicao">Instituição</label><input type="text" id="instituicao" name="instituicao" placeholder="Ex: CEFET/MG" /></div>
+            <div class="campo"><label for="campus">Campus / Unidade</label><input type="text" id="campus" name="campus" placeholder="Ex: Contagem" /></div>
+          </div>
+
+          <div class="campo-grupo">
+            <div class="campo"><label for="curso">Curso</label><input type="text" id="curso" name="curso" placeholder="Ex: Controle Ambiental" /></div>
+            <div class="campo"><label for="disciplina">Disciplina</label><input type="text" id="disciplina" name="disciplina" placeholder="Ex: Laboratório de Química" /></div>
+          </div>
+
+          <div class="campo-grupo">
+            <div class="campo"><label for="turma">Turma</label><input type="text" id="turma" name="turma" placeholder="Ex: Camb1" /></div>
+            <div class="campo"><label for="orientador">Professor / Orientador</label><input type="text" id="orientador" name="orientador" placeholder="Ex: Moisés Paulo Teixeira" /></div>
+          </div>
+
+          <div class="campo-grupo">
+            <div class="campo">
+              <label for="tipo_trabalho">Tipo de trabalho</label>
+              <select id="tipo_trabalho" name="tipo_trabalho">
+                <option value="Relatório apresentado">Relatório de laboratório</option>
+                <option value="Trabalho de Conclusão de Curso">TCC</option>
+                <option value="Artigo científico">Artigo científico</option>
+                <option value="Monografia">Monografia</option>
+                <option value="Trabalho Acadêmico">Trabalho Acadêmico</option>
+              </select>
+            </div>
+            <div class="campo"><label for="cidade">Cidade</label><input type="text" id="cidade" name="cidade" placeholder="Ex: Contagem" /></div>
+          </div>
+
+          <div class="campo-grupo">
+            <div class="campo">
+              <label for="mes">Mês</label>
+              <select id="mes" name="mes">
+                <option value="">Selecione...</option>
+                <option>Janeiro</option><option>Fevereiro</option><option>Março</option>
+                <option>Abril</option><option>Maio</option><option>Junho</option>
+                <option>Julho</option><option>Agosto</option><option>Setembro</option>
+                <option>Outubro</option><option>Novembro</option><option>Dezembro</option>
+              </select>
+            </div>
+            <div class="campo campo-pequeno">
+              <label for="ano">Ano</label>
+              <input type="number" id="ano" name="ano" placeholder="2025" min="2000" max="2099" value="{{ ano }}" />
+            </div>
+          </div>
+
+          <div class="campo">
+            <label for="resumo">Resumo <span class="dica">(opcional)</span></label>
+            <textarea id="resumo" name="resumo" rows="3" placeholder="Escreva aqui o resumo em um único parágrafo..."></textarea>
+          </div>
+          <div class="campo">
+            <label for="palavras_chave">Palavras-chave <span class="dica">(separadas por ponto e vírgula)</span></label>
+            <input type="text" id="palavras_chave" name="palavras_chave" placeholder="Ex: Gasolina; Etanol; Extração" />
+          </div>
+
+          <div class="etapa-nav">
+            <div></div>
+            <button type="button" class="btn-next" onclick="proximaEtapa(2)">Próximo: Texto →</button>
+          </div>
+        </div>
+
+        <!-- ETAPA 2: TEXTO PURO -->
+        <div class="etapa oculto" id="etapa-2">
+          <div class="etapa-header">
+            <h2>Cole o texto do trabalho</h2>
+            <p>Cole o conteúdo completo — o sistema vai detectar automaticamente introdução, objetivos, metodologia, resultados e conclusão.</p>
+            <div class="instrucao-cite">Utilize <code>[cite]</code> sua citação aqui... <code>[/cite]</code> para fazer uma citação</div>
+          </div>
+
+          <div class="campo obrigatorio">
+            <label for="texto_bruto">Texto do trabalho <span class="req">*</span></label>
+            <div class="dica-deteccao">
+              <span class="dica-item">✦ Títulos como "Introdução", "Objetivos" são detectados automaticamente</span>
+              <span class="dica-item">✦ Numerações como "1.", "1.1" também são reconhecidas</span>
+              <span class="dica-item">✦ Referências ao final são separadas automaticamente</span>
+              <span class="dica-item dica-cite">✦ Para citações use <code>[cite]texto da citação[/cite]</code> — citações curtas ficam entre aspas; longas viram bloco recuado (ABNT NBR 10520)</span>
+            </div>
+            <textarea id="texto_bruto" name="texto_bruto" rows="22"
+              placeholder="Cole aqui o texto completo do trabalho. Exemplo:
+
+1. INTRODUÇÃO
+
+As misturas podem ser classificadas em homogêneas ou heterogêneas...
+
+2. OBJETIVOS
+
+2.1 Extrair o álcool na gasolina e determinar sua porcentagem.
+
+3. MATERIAIS E REAGENTES
+
+Gasolina, água da torneira, provetas...
+
+4. PROCEDIMENTOS
+
+Mediu-se 25,0 mL de gasolina...
+
+5. RESULTADOS E DISCUSSÕES
+
+Os volumes iniciais medidos eram iguais...
+
+6. CONCLUSÃO
+
+O experimento permitiu concluir que...
+
+REFERÊNCIAS BIBLIOGRÁFICAS
+
+SILVA, João. Química Geral. São Paulo: Atlas, 2020."></textarea>
+          </div>
+
+          <div class="etapa-nav">
+            <button type="button" class="btn-back" onclick="proximaEtapa(1)">← Voltar</button>
+            <button type="button" class="btn-next" onclick="analisarTexto()">Analisar estrutura →</button>
+          </div>
+        </div>
+
+        <!-- ETAPA 3: CONFIRMAR ESTRUTURA -->
+        <div class="etapa oculto" id="etapa-3">
+          <div class="etapa-header">
+            <h2>Confirme a estrutura detectada</h2>
+            <p>Verifique se o sistema identificou corretamente as seções. Você pode editar o tipo de cada bloco antes de gerar o PDF.</p>
+          </div>
+
+          <div id="estrutura-preview"></div>
+
+          <div class="etapa-nav" style="margin-top:1.5rem;">
+            <button type="button" class="btn-back" onclick="proximaEtapa(2)">← Voltar e editar texto</button>
+            <button type="button" class="btn-next" onclick="proximaEtapa(4)">Próximo: Referências →</button>
+          </div>
+        </div>
+
+        <!-- ETAPA 4: REFERÊNCIAS -->
+        <div class="etapa oculto" id="etapa-4">
+          <div class="etapa-header">
+            <h2>Referências bibliográficas</h2>
+            <p>Verifique as referências detectadas automaticamente ou adicione manualmente. Uma por linha.</p>
+          </div>
+
+          <div class="campo">
+            <label for="referencias">Referências <span class="dica">(opcional)</span></label>
+            <textarea id="referencias" name="referencias" rows="10"
+              placeholder="SOBRENOME, Nome. Título: subtítulo. Local: Editora, Ano."></textarea>
+          </div>
+
+          <div class="contador-box">
+            <div class="contador-info">
+              <div class="contador-circulo">
+                <svg viewBox="0 0 44 44">
+                  <circle cx="22" cy="22" r="18" class="circle-bg"/>
+                  <circle cx="22" cy="22" r="18" class="circle-fill" id="circle-fill"/>
+                </svg>
+                <span id="contador-num">{{ free_limit - guest_count }}</span>
+              </div>
+              <div class="contador-texto">
+                <strong>PDFs gratuitos restantes</strong>
+                <span>Crie uma conta para uso ilimitado</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="etapa-nav">
+            <button type="button" class="btn-back" onclick="proximaEtapa(3)">← Voltar</button>
+            <button type="button" class="btn-gerar" id="btn-gerar" onclick="gerarPDF()">
+              <span id="btn-texto">✦ Gerar PDF em ABNT</span>
+              <span id="btn-loading" class="oculto">Gerando...</span>
+            </button>
+          </div>
+        </div>
+
+      </form>
+    </div>
+
+    <!-- RESULTADO -->
+    <div class="resultado oculto" id="resultado">
+      <div class="resultado-inner">
+        <div class="resultado-icon">✓</div>
+        <h3>PDF gerado com sucesso!</h3>
+        <h4>Este PDF <strong>não será armazenado</strong>. Ao fechar o site ele será deletado do nosso sistema — faça o download agora.</h4>
+        <p>Capa, folha de rosto e conteúdo formatados conforme ABNT NBR 14724.</p>
+        <a href="#" id="link-download" class="btn-download">⬇ Baixar PDF</a>
+        <div class="aviso-temporario">
+          <span class="aviso-icone">⚠</span>
+          <span>Este PDF <strong>não será armazenado</strong>. Ao fechar o site ele será deletado do nosso sistema — faça o download agora.</span>
+        </div>
+        <button class="btn-novo" onclick="novoTrabalho()">Gerar outro trabalho</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- MODAL CONTA -->
+  <div class="modal-overlay oculto" id="modal-conta">
+    <div class="modal">
+      <button class="modal-fechar" onclick="fecharModalConta()">✕</button>
+      <div class="modal-icon">⚡</div>
+      <h3>Crie sua conta grátis</h3>
+      <p>Com uma conta você tem <strong>PDFs ilimitados</strong>, histórico e formatos avançados.</p>
+      <div class="modal-features">
+        <div class="feature">✓ PDFs ilimitados</div>
+        <div class="feature">✓ Histórico salvo</div>
+        <div class="feature">✓ Sumário automático</div>
+        <div class="feature">✓ Templates prontos</div>
+      </div>
+      <p class="modal-dev-note">🚧 Cadastro em breve!</p>
+      <button class="btn-modal-fechar" onclick="fecharModalConta()">Entendi, continuar grátis</button>
+    </div>
+  </div>
+
+  <!-- MODAL LIMITE -->
+  <div class="modal-overlay oculto" id="modal-limite">
+    <div class="modal">
+      <button class="modal-fechar" onclick="fecharModalLimite()">✕</button>
+      <div class="modal-icon">🔒</div>
+      <h3>Limite gratuito atingido</h3>
+      <p>Você usou seus <strong>{{ free_limit }} PDFs gratuitos</strong>. Crie uma conta para continuar.</p>
+      <div class="modal-features">
+        <div class="feature">✓ PDFs ilimitados</div>
+        <div class="feature">✓ Histórico salvo</div>
+      </div>
+      <p class="modal-dev-note">🚧 Cadastro em breve!</p>
+      <button class="btn-modal-fechar" onclick="fecharModalLimite()">Voltar</button>
+    </div>
+  </div>
+
+  <script>
+    const FREE_LIMIT = {{ free_limit }};
+    let contadorAtual = {{ free_limit - guest_count }};
+  </script>
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
