@@ -28,7 +28,7 @@ def init_db():
             avatar_url  VARCHAR(500),
             criado_em   DATETIME DEFAULT CURRENT_TIMESTAMP,
             pdfs_gerados INT DEFAULT 0,
-            limite_pdfs  INT DEFAULT 99
+            limite_pdfs  INT DEFAULT 1
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
     """)
 
