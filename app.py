@@ -17,7 +17,7 @@ from auth import auth_bp, init_auth, get_usuario, pode_gerar_pdf, registrar_gera
 
 load_dotenv()
 
-app = Flask(__name__, template_folder=".")
+app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "chave-secreta-local")
 app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024
 
