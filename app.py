@@ -642,7 +642,7 @@ def download(filename):
         mimetype="application/pdf"
     )
 
-- 
+
 init_db()
 
 if __name__ == "__main__":
