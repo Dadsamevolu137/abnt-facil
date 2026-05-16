@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify, session, redirect, url_for
 from flask_bcrypt import Bcrypt
 from authlib.integrations.flask_client import OAuth
-from database import get_connection
+from database import get_connection, get_cursor
 import os, re
 
 auth_bp = Blueprint("auth", __name__)
@@ -30,11 +30,11 @@ def get_usuario():
     if not uid:
         return None
     conn = get_connection()
-    cur  = conn.cursor(dictionary=True)
+    cur  = get_cursor(conn)
     cur.execute("SELECT * FROM usuarios WHERE id = %s", (uid,))
     u = cur.fetchone()
     cur.close(); conn.close()
-    return u
+    return dict(u) if u else None
 
 def pode_gerar_pdf(usuario):
     if not usuario:
@@ -43,7 +43,7 @@ def pode_gerar_pdf(usuario):
 
 def registrar_geracao(usuario_id):
     conn = get_connection()
-    cur  = conn.cursor()
+    cur  = get_cursor(conn)
     cur.execute("UPDATE usuarios SET pdfs_gerados = pdfs_gerados + 1 WHERE id = %s", (usuario_id,))
     conn.commit()
     cur.close(); conn.close()
@@ -64,7 +64,7 @@ def cadastro():
         return jsonify({"erro": "Senha deve ter pelo menos 6 caracteres"}), 400
 
     conn = get_connection()
-    cur  = conn.cursor(dictionary=True)
+    cur  = get_cursor(conn)
     cur.execute("SELECT id FROM usuarios WHERE email = %s", (email,))
     if cur.fetchone():
         cur.close(); conn.close()
@@ -72,15 +72,15 @@ def cadastro():
 
     hash_senha = bcrypt.generate_password_hash(senha).decode("utf-8")
     cur.execute(
-        "INSERT INTO usuarios (nome, email, senha_hash) VALUES (%s, %s, %s)",
+        "INSERT INTO usuarios (nome, email, senha_hash) VALUES (%s, %s, %s) RETURNING id",
         (nome or email.split("@")[0], email, hash_senha)
     )
+    uid = cur.fetchone()["id"]
     conn.commit()
-    uid = cur.lastrowid
     cur.close(); conn.close()
 
-    session["usuario_id"] = uid
-    session["usuario_nome"] = nome or email.split("@")[0]
+    session["usuario_id"]    = uid
+    session["usuario_nome"]  = nome or email.split("@")[0]
     session["usuario_email"] = email
     return jsonify({"sucesso": True, "nome": nome or email.split("@")[0]})
 
@@ -95,7 +95,7 @@ def login():
         return jsonify({"erro": "Preencha e-mail e senha"}), 400
 
     conn = get_connection()
-    cur  = conn.cursor(dictionary=True)
+    cur  = get_cursor(conn)
     cur.execute("SELECT * FROM usuarios WHERE email = %s", (email,))
     u = cur.fetchone()
     cur.close(); conn.close()
@@ -134,27 +134,25 @@ def google_callback():
     avatar_url = userinfo.get("picture", "")
 
     conn = get_connection()
-    cur  = conn.cursor(dictionary=True)
+    cur  = get_cursor(conn)
 
-    # Procura por google_id ou email
     cur.execute("SELECT * FROM usuarios WHERE google_id = %s OR email = %s", (google_id, email))
     u = cur.fetchone()
 
     if u:
-        # Atualiza google_id se ainda não tinha
         if not u.get("google_id"):
             cur.execute("UPDATE usuarios SET google_id = %s, avatar_url = %s WHERE id = %s",
                         (google_id, avatar_url, u["id"]))
             conn.commit()
-        uid = u["id"]
+        uid  = u["id"]
         nome = u["nome"]
     else:
         cur.execute(
-            "INSERT INTO usuarios (nome, email, google_id, avatar_url) VALUES (%s, %s, %s, %s)",
+            "INSERT INTO usuarios (nome, email, google_id, avatar_url) VALUES (%s, %s, %s, %s) RETURNING id",
             (nome, email, google_id, avatar_url)
         )
+        uid = cur.fetchone()["id"]
         conn.commit()
-        uid = cur.lastrowid
 
     cur.close(); conn.close()
     session["usuario_id"]    = uid
