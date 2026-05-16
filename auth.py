@@ -30,7 +30,7 @@ def get_usuario():
     if not uid:
         return None
     conn = get_connection()
-    cur  = conn.cursor(dictionary=True)
+    cur  = get_cursor(conn)
     cur.execute("SELECT * FROM usuarios WHERE id = %s", (uid,))
     u = cur.fetchone()
     cur.close(); conn.close()
