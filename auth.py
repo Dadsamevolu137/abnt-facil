@@ -134,7 +134,7 @@ def google_callback():
     avatar_url = userinfo.get("picture", "")
 
     conn = get_connection()
-    cur  = conn.cursor(dictionary=True)
+    cur  = get_cursor(conn)
 
     # Procura por google_id ou email
     cur.execute("SELECT * FROM usuarios WHERE google_id = %s OR email = %s", (google_id, email))
