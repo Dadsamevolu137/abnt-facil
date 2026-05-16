@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify, session, redirect, url_for
 from flask_bcrypt import Bcrypt
 from authlib.integrations.flask_client import OAuth
-from database import get_connection
+from database import get_connection, get_cursor
 import os, re
 
 auth_bp = Blueprint("auth", __name__)
