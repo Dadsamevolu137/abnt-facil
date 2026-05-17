@@ -64,7 +64,7 @@ def cadastro():
         return jsonify({"erro": "Senha deve ter pelo menos 6 caracteres"}), 400
 
     conn = get_connection()
-    cur  = conn.cursor(dictionary=True)
+    cur  = get_cursor(conn)
     cur.execute("SELECT id FROM usuarios WHERE email = %s", (email,))
     if cur.fetchone():
         cur.close(); conn.close()
@@ -95,7 +95,7 @@ def login():
         return jsonify({"erro": "Preencha e-mail e senha"}), 400
 
     conn = get_connection()
-    cur  = conn.cursor(dictionary=True)
+    cur  = get_cursor(conn)
     cur.execute("SELECT * FROM usuarios WHERE email = %s", (email,))
     u = cur.fetchone()
     cur.close(); conn.close()
