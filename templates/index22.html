@@ -392,107 +392,9 @@
       });
     }
 
-    // ===== IMAGENS INLINE NAS SEÇÕES =====
-    let contadorImgSecao = 0;
-
-    function adicionarImagemSecao(btn) {
-      contadorImgSecao++;
-      const id = contadorImgSecao;
-      const secaoBody = btn.closest('.secao-body');
-      const conteudoArea = secaoBody.querySelector('.secao-conteudo');
-
-      const wrapper = document.createElement('div');
-      wrapper.className = 'img-secao-wrapper';
-      wrapper.dataset.imgId = id;
-      wrapper.innerHTML = `
-        <div class="img-secao-block">
-          <div class="img-secao-header">
-            <span class="img-secao-label">🖼 Imagem inline</span>
-            <button type="button" class="secao-remover" onclick="this.closest('.img-secao-wrapper').remove()" title="Remover imagem">✕</button>
-          </div>
-          <div class="anexo-upload-area img-secao-upload" onclick="this.querySelector('.img-secao-file').click()">
-            <div class="anexo-placeholder">
-              <span class="logo-icon">⬆</span>
-              <span>Clique para enviar a imagem</span>
-              <span class="logo-hint">PNG ou JPG • Máx. 10MB</span>
-            </div>
-            <div class="anexo-preview oculto">
-              <img class="anexo-img" src="" alt="Imagem"/>
-              <button type="button" class="logo-remover" onclick="event.stopPropagation();removerImgSecao(this)">✕ Remover</button>
-            </div>
-            <input type="file" class="img-secao-file" accept=".png,.jpg,.jpeg" style="display:none" onchange="previewImgSecao(this)"/>
-          </div>
-          <div class="campo" style="margin-top:8px">
-            <label>Legenda <span class="dica">(ex: Figura 1 — Descrição)</span></label>
-            <input type="text" class="img-secao-legenda" placeholder="Ex: Figura 1 — Resultado do experimento"/>
-          </div>
-          <div class="campo">
-            <label>Fonte <span class="dica">(opcional)</span></label>
-            <input type="text" class="img-secao-fonte" placeholder="Ex: Elaborado pelos autores (2024)"/>
-          </div>
-          <div class="campo">
-            <label>Tamanho</label>
-            <div class="anexo-tamanho-grupo">
-              <label class="anexo-tamanho-opcao">
-                <input type="radio" name="img-tamanho-${id}" class="img-secao-tamanho" value="pequeno"/>
-                <span class="tamanho-label"><span class="tamanho-icone tamanho-p"></span><span class="tamanho-nome">Pequeno</span><span class="tamanho-desc">~40%</span></span>
-              </label>
-              <label class="anexo-tamanho-opcao">
-                <input type="radio" name="img-tamanho-${id}" class="img-secao-tamanho" value="medio" checked/>
-                <span class="tamanho-label"><span class="tamanho-icone tamanho-m"></span><span class="tamanho-nome">Médio</span><span class="tamanho-desc">~65%</span></span>
-              </label>
-              <label class="anexo-tamanho-opcao">
-                <input type="radio" name="img-tamanho-${id}" class="img-secao-tamanho" value="grande"/>
-                <span class="tamanho-label"><span class="tamanho-icone tamanho-g"></span><span class="tamanho-nome">Grande</span><span class="tamanho-desc">100%</span></span>
-              </label>
-            </div>
-          </div>
-        </div>
-      `;
-
-      // Insere depois da textarea de conteúdo
-      conteudoArea.parentNode.insertBefore(wrapper, conteudoArea.nextSibling);
-    }
-
-    function previewImgSecao(input) {
-      const area = input.closest('.anexo-upload-area');
-      const file = input.files[0];
-      if (!file) return;
-      if (file.size > 10 * 1024 * 1024) { mostrarToast('Imagem muito grande. Máximo 10MB.', 'erro'); return; }
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        area.querySelector('.anexo-img').src = e.target.result;
-        area.querySelector('.anexo-placeholder').classList.add('oculto');
-        area.querySelector('.anexo-preview').classList.remove('oculto');
-      };
-      reader.readAsDataURL(file);
-    }
-
-    function removerImgSecao(btn) {
-      const area = btn.closest('.anexo-upload-area');
-      area.querySelector('.anexo-img').src = '';
-      area.querySelector('.img-secao-file').value = '';
-      area.querySelector('.anexo-placeholder').classList.remove('oculto');
-      area.querySelector('.anexo-preview').classList.add('oculto');
-    }
-
-    function coletarImagensSecao(secaoEl) {
-      const imagens = [];
-      secaoEl.querySelectorAll('.img-secao-wrapper').forEach(function(wrapper) {
-        const imgEl = wrapper.querySelector('.anexo-img');
-        const legenda = wrapper.querySelector('.img-secao-legenda').value.trim();
-        const fonte = wrapper.querySelector('.img-secao-fonte').value.trim();
-        const tamanhoEl = wrapper.querySelector('.img-secao-tamanho:checked');
-        const tamanho = tamanhoEl ? tamanhoEl.value : 'medio';
-        const imgSrc = (imgEl && imgEl.src && !imgEl.src.endsWith('/')) ? imgEl.src : '';
-        if (imgSrc || legenda) {
-          imagens.push({ imagem: imgSrc, legenda: legenda, fonte: fonte, tamanho: tamanho });
-        }
-      });
-      return imagens;
-    }
-
-    // Patch: injeta anexos e imagens inline no payload antes de enviar para o servidor
+    // Patch: injeta anexos no payload antes de enviar para o servidor
+    // O app.js original faz fetch('/gerar-pdf', ...) — sobrescrevemos o fetch
+    // para adicionar a chave "anexos" ao body JSON automaticamente.
     (function() {
       const _fetch = window.fetch;
       window.fetch = function(url, options) {
@@ -502,15 +404,6 @@
             if (!payload.anexos) {
               payload.anexos = coletarAnexos();
             }
-            // Injeta imagens inline em cada seção
-            if (payload.secoes) {
-              const secaoEls = document.querySelectorAll('#secoes-container .secao-item');
-              secaoEls.forEach(function(el, i) {
-                if (payload.secoes[i]) {
-                  payload.secoes[i].imagens = coletarImagensSecao(el);
-                }
-              });
-            }
             options = Object.assign({}, options, { body: JSON.stringify(payload) });
           } catch(e) {}
         }
@@ -519,40 +412,5 @@
     })();
   </script>
   <script src="/static/js/app.js"></script>
-  <script>
-    function injetarBtnImagem(secaoEl) {
-      if (secaoEl.querySelector('.btn-add-img-secao')) return;
-      const body = secaoEl.querySelector('.secao-body');
-      if (!body) return;
-      const textarea = body.querySelector('textarea');
-      if (!textarea) return;
-      textarea.classList.add('secao-conteudo');
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'btn-add-secao btn-add-img-secao';
-      btn.style.cssText = 'margin-top:8px; font-size:0.78rem; padding:7px;';
-      btn.innerHTML = '🖼 Inserir imagem nesta seção';
-      btn.onclick = function() { adicionarImagemSecao(btn); };
-      textarea.parentNode.insertBefore(btn, textarea.nextSibling);
-    }
-
-    const _observer = new MutationObserver(function(mutations) {
-      mutations.forEach(function(m) {
-        m.addedNodes.forEach(function(node) {
-          if (node.classList && node.classList.contains('secao-item')) {
-            injetarBtnImagem(node);
-          }
-        });
-      });
-    });
-
-    document.addEventListener('DOMContentLoaded', function() {
-      const container = document.getElementById('secoes-container');
-      if (container) {
-        _observer.observe(container, { childList: true });
-        container.querySelectorAll('.secao-item').forEach(injetarBtnImagem);
-      }
-    });
-  </script>
 </body>
 </html>
