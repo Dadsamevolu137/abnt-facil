@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, jsonify, send_file, session, redirect, url_for
+from flask_session import Session
 from dotenv import load_dotenv
 import os, uuid
 from datetime import datetime
@@ -19,9 +20,10 @@ load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "chave-secreta-local")
-app.config["SESSION_COOKIE_SECURE"] = True
-app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+app.config["SESSION_TYPE"] = "filesystem"
+app.config["SESSION_FILE_DIR"] = "./flask_session"
 app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024
+Session(app)
 
 app.register_blueprint(auth_bp)
 init_auth(app)
@@ -30,6 +32,7 @@ UPLOAD_FOLDER = "generated_pdfs"
 LOGO_FOLDER   = "uploaded_logos"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(LOGO_FOLDER, exist_ok=True)
+os.makedirs("flask_session", exist_ok=True)
 
 
 @app.route("/favicon.ico")
@@ -547,11 +550,25 @@ def gerar_pdf_abnt(data, filepath, logo_path=None):  # noqa: C901
 def index():
     usuario = get_usuario()
     if not usuario:
-        return render_template("login.html")
+        return render_template("landing.html")
+    return redirect(url_for("formulario"))
+
+@app.route("/formatar")
+def formulario():
+    usuario = get_usuario()
+    if not usuario:
+        return redirect(url_for("index"))
     return render_template("index.html",
         usuario=usuario,
         pode_gerar=pode_gerar_pdf(usuario),
         ano=datetime.now().year)
+
+@app.route("/entrar")
+def entrar():
+    usuario = get_usuario()
+    if usuario:
+        return redirect(url_for("formulario"))
+    return render_template("login.html")
 
 
 @app.route("/upload-logo", methods=["POST"])
@@ -645,7 +662,6 @@ def download(filename):
     )
 
 
-init_db()
-
 if __name__ == "__main__":
+    init_db()
     app.run(debug=True, port=5000)

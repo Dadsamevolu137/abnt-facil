@@ -123,7 +123,7 @@
         });
         const data = await resp.json();
         if (!resp.ok) { erroEl.textContent = data.erro; erroEl.classList.remove("oculto"); return; }
-        window.location.href = "/formatar";
+        window.location.href = "/";
       } catch { erroEl.textContent = "Erro de conexão."; erroEl.classList.remove("oculto"); }
     }
 
@@ -142,7 +142,7 @@
         });
         const data = await resp.json();
         if (!resp.ok) { erroEl.textContent = data.erro; erroEl.classList.remove("oculto"); return; }
-        window.location.href = "/formatar";
+        window.location.href = "/";
       } catch { erroEl.textContent = "Erro de conexão."; erroEl.classList.remove("oculto"); }
     }
 

@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify, session, redirect, url_for
 from flask_bcrypt import Bcrypt
 from authlib.integrations.flask_client import OAuth
-from database import get_connection
+from database import get_connection, get_cursor
 import os, re
 
 auth_bp = Blueprint("auth", __name__)
@@ -30,7 +30,7 @@ def get_usuario():
     if not uid:
         return None
     conn = get_connection()
-    cur  = conn.cursor(dictionary=True)
+    cur  = get_cursor(conn)
     cur.execute("SELECT * FROM usuarios WHERE id = %s", (uid,))
     u = cur.fetchone()
     cur.close(); conn.close()
@@ -64,7 +64,7 @@ def cadastro():
         return jsonify({"erro": "Senha deve ter pelo menos 6 caracteres"}), 400
 
     conn = get_connection()
-    cur  = conn.cursor(dictionary=True)
+    cur  = get_cursor(conn)
     cur.execute("SELECT id FROM usuarios WHERE email = %s", (email,))
     if cur.fetchone():
         cur.close(); conn.close()
@@ -95,7 +95,7 @@ def login():
         return jsonify({"erro": "Preencha e-mail e senha"}), 400
 
     conn = get_connection()
-    cur  = conn.cursor(dictionary=True)
+    cur  = get_cursor(conn)
     cur.execute("SELECT * FROM usuarios WHERE email = %s", (email,))
     u = cur.fetchone()
     cur.close(); conn.close()
@@ -134,7 +134,7 @@ def google_callback():
     avatar_url = userinfo.get("picture", "")
 
     conn = get_connection()
-    cur  = conn.cursor(dictionary=True)
+    cur  = get_cursor(conn)
 
     # Procura por google_id ou email
     cur.execute("SELECT * FROM usuarios WHERE google_id = %s OR email = %s", (google_id, email))
@@ -160,7 +160,7 @@ def google_callback():
     session["usuario_id"]    = uid
     session["usuario_nome"]  = nome
     session["usuario_email"] = email
-    return redirect(url_for("formulario"))
+    return redirect(url_for("index"))
 
 
 @auth_bp.route("/auth/status")
