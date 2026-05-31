@@ -1,5 +1,4 @@
 from flask import Flask, render_template, request, jsonify, send_file, session, redirect, url_for
-from flask_session import Session
 from dotenv import load_dotenv
 import os, uuid
 from datetime import datetime
@@ -20,10 +19,7 @@ load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "chave-secreta-local")
-app.config["SESSION_TYPE"] = "filesystem"
-app.config["SESSION_FILE_DIR"] = "./flask_session"
 app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024
-Session(app)
 
 app.register_blueprint(auth_bp)
 init_auth(app)
@@ -32,7 +28,6 @@ UPLOAD_FOLDER = "generated_pdfs"
 LOGO_FOLDER   = "uploaded_logos"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(LOGO_FOLDER, exist_ok=True)
-os.makedirs("flask_session", exist_ok=True)
 
 
 @app.route("/favicon.ico")
