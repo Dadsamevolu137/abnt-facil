@@ -421,25 +421,25 @@ def gerar_pdf_abnt(data, filepath, logo_path=None):  # noqa: C901
         story.append(PageBreak())
 
     # Seções — numeradas a partir de 1
-    import base64, io as _io
+    from reportlab.platypus import KeepTogether
+    import base64, io as _io_sec
 
-    TAMANHOS_IMG_INLINE = {
+    TAMANHOS_IMG_SECAO = {
         "pequeno": (largura_util * 0.40, largura_util * 0.30),
         "medio":   (largura_util * 0.65, largura_util * 0.50),
         "grande":  (largura_util * 1.00, largura_util * 0.75),
     }
 
-    legenda_inline_estilo = ParagraphStyle("legenda_inline",
+    legenda_secao_estilo = ParagraphStyle("legenda_secao",
         fontName=fonte, fontSize=10, leading=13,
         textColor=colors.black, alignment=TA_LEFT,
         firstLineIndent=0, spaceBefore=0.2*cm, spaceAfter=0.1*cm)
 
-    fonte_inline_estilo = ParagraphStyle("fonte_inline",
+    fonte_secao_estilo = ParagraphStyle("fonte_secao",
         fontName=fonte, fontSize=10, leading=13,
         textColor=colors.black, alignment=TA_LEFT,
         firstLineIndent=0, spaceAfter=0.4*cm)
 
-    from reportlab.platypus import KeepTogether
     num_secao = 1
     for secao in secoes_validas:
         tit = secao.get("titulo", "").strip()
@@ -460,9 +460,9 @@ def gerar_pdf_abnt(data, filepath, logo_path=None):  # noqa: C901
                 try:
                     _, data_b64 = imagem_b64.split(",", 1)
                     img_bytes = base64.b64decode(data_b64)
-                    img_buffer = _io.BytesIO(img_bytes)
+                    img_buffer = _io_sec.BytesIO(img_bytes)
                     tamanho_key = img_data.get("tamanho", "medio").lower()
-                    max_w, max_h = TAMANHOS_IMG_INLINE.get(tamanho_key, TAMANHOS_IMG_INLINE["medio"])
+                    max_w, max_h = TAMANHOS_IMG_SECAO.get(tamanho_key, TAMANHOS_IMG_SECAO["medio"])
                     img_flowable = Image(img_buffer, width=max_w, height=max_h, kind="proportional")
                     img_flowable.hAlign = "LEFT"
                     bloco.append(Spacer(1, 0.3*cm))
@@ -472,9 +472,9 @@ def gerar_pdf_abnt(data, filepath, logo_path=None):  # noqa: C901
             legenda = img_data.get("legenda", "").strip()
             fonte_img = img_data.get("fonte", "").strip()
             if legenda:
-                bloco.append(Paragraph(legenda, legenda_inline_estilo))
+                bloco.append(Paragraph(legenda, legenda_secao_estilo))
             if fonte_img:
-                bloco.append(Paragraph(f"Fonte: {fonte_img}", fonte_inline_estilo))
+                bloco.append(Paragraph(f"Fonte: {fonte_img}", fonte_secao_estilo))
 
         story.append(KeepTogether(bloco[:3] if len(bloco) > 3 else bloco))
         for item in bloco[3:]:
