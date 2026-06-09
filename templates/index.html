@@ -10,98 +10,14 @@
   <link rel="shortcut icon" type="image/png" href="/static/img/favicon2.png"/>
   <link rel="stylesheet" href="/static/css/style.css"/>
   <link rel="stylesheet" href="/static/css/auth.css"/>
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7266606205387680" crossorigin="anonymous"></script>
-  <style>
-    /* ===== MELHORIAS UX ===== */
-
-    /* Hero atualizado */
-    .hero-features { display:flex; gap:1.5rem; justify-content:center; flex-wrap:wrap; margin:1.25rem 0 1.75rem; }
-    .hero-feature { display:flex; align-items:center; gap:6px; font-size:0.82rem; color:var(--text-2); }
-    .hero-feature span:first-child { font-size:1rem; }
-    .btn-comecar { background:linear-gradient(135deg,var(--accent),#9b6aff); border:none; border-radius:30px; color:#fff; cursor:pointer; font-family:var(--font-body); font-size:0.95rem; font-weight:600; padding:12px 28px; box-shadow:0 4px 20px var(--accent-glow); transition:all .2s; }
-    .btn-comecar:hover { transform:translateY(-2px); box-shadow:0 8px 28px var(--accent-glow); }
-
-    /* Barra de progresso preenchimento */
-    .preench-bar-wrap { background:var(--surface); border-radius:var(--radius); padding:12px 16px; margin-bottom:1.25rem; }
-    .preench-label { font-size:0.78rem; color:var(--text-2); margin-bottom:6px; display:flex; justify-content:space-between; }
-    .preench-bar { height:6px; background:var(--border); border-radius:3px; overflow:hidden; }
-    .preench-fill { height:100%; background:linear-gradient(90deg,var(--accent),var(--green)); border-radius:3px; transition:width .4s ease; width:0%; }
-
-    /* Campo com contador e validação */
-    .campo-wrap { position:relative; }
-    .char-count { position:absolute; bottom:8px; right:10px; font-size:0.7rem; color:var(--text-3); pointer-events:none; }
-    textarea.com-contador { padding-bottom:24px; }
-
-    input.valido, textarea.valido, select.valido { border-color:var(--green) !important; }
-    input.invalido, textarea.invalido { border-color:#f87171 !important; }
-    .campo-erro-msg { font-size:0.75rem; color:#f87171; margin-top:3px; display:none; }
-    .campo-erro-msg.visivel { display:block; }
-
-    /* Referências */
-    .ref-item { display:flex; gap:8px; align-items:flex-start; margin-bottom:8px; }
-    .ref-item textarea { flex:1; min-height:52px; resize:vertical; }
-    .ref-item .btn-ref-acoes { display:flex; flex-direction:column; gap:4px; flex-shrink:0; }
-    .btn-ref-remover { background:transparent; border:1px solid var(--border-2); border-radius:6px; color:#f87171; cursor:pointer; font-size:0.72rem; padding:4px 8px; white-space:nowrap; transition:all .2s; }
-    .btn-ref-remover:hover { background:rgba(248,113,113,0.1); }
-    .btn-ref-abnt { background:transparent; border:1px solid var(--accent); border-radius:6px; color:var(--accent-2); cursor:pointer; font-size:0.72rem; padding:4px 8px; white-space:nowrap; transition:all .2s; }
-    .btn-ref-abnt:hover { background:rgba(124,106,255,0.1); }
-
-    /* Modal converter URL */
-    .modal-url { display:none; position:fixed; inset:0; background:rgba(0,0,0,.7); z-index:300; align-items:center; justify-content:center; padding:1.5rem; }
-    .modal-url.aberto { display:flex; }
-    .modal-url-inner { background:var(--bg-2); border:1px solid var(--border-2); border-radius:var(--radius-lg); padding:1.75rem; width:100%; max-width:480px; }
-    .modal-url h3 { font-family:var(--font-display); font-size:1.1rem; margin-bottom:.5rem; }
-    .modal-url p { font-size:.82rem; color:var(--text-2); margin-bottom:1rem; line-height:1.6; }
-    .modal-url input { width:100%; margin-bottom:.75rem; }
-    .modal-url-acoes { display:flex; gap:8px; justify-content:flex-end; }
-    .btn-modal-cancel { background:transparent; border:1px solid var(--border-2); border-radius:20px; color:var(--text-2); cursor:pointer; font-family:var(--font-body); font-size:.82rem; padding:7px 16px; }
-    .btn-modal-ok { background:var(--accent); border:none; border-radius:20px; color:#fff; cursor:pointer; font-family:var(--font-body); font-size:.82rem; font-weight:600; padding:7px 16px; }
-    .ref-convertida { background:rgba(74,222,128,.06); border:1px solid rgba(74,222,128,.25); border-radius:6px; padding:8px 10px; font-size:.78rem; color:var(--green); margin-top:6px; display:none; }
-
-    /* Tela processamento */
-    .processando-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.75); z-index:400; align-items:center; justify-content:center; }
-    .processando-overlay.ativo { display:flex; }
-    .processando-card { background:var(--bg-2); border:1px solid var(--border-2); border-radius:var(--radius-lg); padding:2.5rem 2rem; width:100%; max-width:400px; text-align:center; }
-    .processando-card h3 { font-family:var(--font-display); font-size:1.15rem; margin-bottom:.5rem; }
-    .processando-card p { font-size:.82rem; color:var(--text-2); margin-bottom:1.5rem; }
-    .proc-etapas { display:flex; flex-direction:column; gap:8px; margin-bottom:1.5rem; text-align:left; }
-    .proc-etapa { display:flex; align-items:center; gap:10px; font-size:.82rem; color:var(--text-2); }
-    .proc-etapa.ativa { color:var(--text); }
-    .proc-etapa.feita { color:var(--green); }
-    .proc-icone { width:18px; text-align:center; font-size:.85rem; }
-    .proc-barra-wrap { height:8px; background:var(--border); border-radius:4px; overflow:hidden; margin-bottom:8px; }
-    .proc-barra-fill { height:100%; background:linear-gradient(90deg,var(--accent),var(--green)); border-radius:4px; transition:width .6s ease; width:0%; }
-    .proc-pct { font-size:.78rem; color:var(--text-2); }
-
-    /* Resultado melhorado */
-    .aviso-download { background:rgba(251,191,36,.07); border:1px solid rgba(251,191,36,.3); border-radius:var(--radius); padding:12px 16px; font-size:.82rem; color:#f59e0b; margin-top:1rem; line-height:1.6; }
-    .aviso-download strong { display:block; margin-bottom:2px; }
-
-    /* FAQ */
-    .faq-section { margin-top:2.5rem; }
-    .faq-section h3 { font-family:var(--font-display); font-size:1rem; font-weight:700; margin-bottom:1rem; color:var(--text); }
-    .faq-item2 { border:1px solid var(--border); border-radius:var(--radius); margin-bottom:8px; overflow:hidden; }
-    .faq-q2 { padding:.875rem 1.1rem; font-size:.85rem; font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center; color:var(--text); background:var(--surface); }
-    .faq-q2::after { content:'+'; font-size:1.1rem; color:var(--text-3); font-weight:400; transition:transform .2s; }
-    .faq-item2.open .faq-q2::after { transform:rotate(45deg); }
-    .faq-a2 { display:none; padding:.75rem 1.1rem; font-size:.82rem; color:var(--text-2); line-height:1.7; border-top:1px solid var(--border); background:var(--bg-2); }
-    .faq-item2.open .faq-a2 { display:block; }
-
-    /* Spinner sutil no botão */
-    @keyframes spin { to { transform:rotate(360deg); } }
-    .spinner { display:inline-block; width:14px; height:14px; border:2px solid rgba(255,255,255,.3); border-top-color:#fff; border-radius:50%; animation:spin .8s linear infinite; vertical-align:middle; margin-right:6px; }
-
-    /* Abas modo */
-    .modo-tabs { display:flex; gap:8px; margin-bottom:1.25rem; }
-    .modo-tab { background:var(--surface); border:1px solid var(--border); border-radius:30px; color:var(--text-2); cursor:pointer; font-family:var(--font-body); font-size:.86rem; font-weight:500; padding:8px 18px; transition:all .2s; }
-    .modo-tab.active { background:var(--accent); border-color:var(--accent); color:#fff; }
-  </style>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7266606205387680"
+     crossorigin="anonymous"></script>
 </head>
 <body>
 
   <header class="header">
     <div class="header-inner">
-      <a href="/" class="logo">ABNT<span>.fácil</span></a>
+      <a href="/" class="logo">ABNT<span>.fáscil</span></a>
       <div class="usuario-info">
         <span class="usuario-nome">{{ usuario.nome }}</span>
         <a href="/auth/logout" class="btn-logout">Sair</a>
@@ -109,22 +25,22 @@
     </div>
   </header>
 
-  <!-- HERO -->
-  <section class="hero" id="hero">
+  <section class="hero">
     <div class="hero-inner">
       <div class="hero-badge">✦ Formatação ABNT automática</div>
-      <h1>Crie documentos em padrão<br/><em>ABNT automaticamente</em></h1>
-      <p class="hero-sub">Preencha os campos e gere seu PDF formatado em segundos.</p>
-      <div class="hero-features">
-        <div class="hero-feature"><span>🔒</span><span>Nenhum dado é armazenado</span></div>
-        <div class="hero-feature"><span>🗑</span><span>PDF removido automaticamente após download</span></div>
-        <div class="hero-feature"><span>⚡</span><span>Geração rápida</span></div>
+      <h1>Seu trabalho formatado<br/><em>em segundos</em></h1>
+      <p class="hero-sub">Preencha os campos de cada seção e gere o PDF com formatação ABNT correta. O que ficar em branco não entra no PDF.</p>
+      <div class="hero-stats">
+        <div class="stat"><strong>Arial 12pt</strong><span>Fonte ABNT</span></div>
+        <div class="stat-div"></div>
+        <div class="stat"><strong>Seções flexíveis</strong><span>Adicione ou remova</span></div>
+        <div class="stat-div"></div>
+        <div class="stat"><strong>Capa + Folha de rosto</strong><span>Geradas automaticamente</span></div>
       </div>
-      <button class="btn-comecar" onclick="document.getElementById('formulario-wrap').scrollIntoView({behavior:'smooth'})">Começar</button>
     </div>
   </section>
 
-  <main class="main-content" id="formulario-wrap">
+  <main class="main-content">
 
     {% if not pode_gerar %}
     <div class="banner-limite">
@@ -133,20 +49,6 @@
     </div>
     {% endif %}
 
-    <!-- ABAS -->
-    <div class="modo-tabs">
-      <button class="modo-tab active" id="tab-passo" onclick="trocarModo('passo')">📝 Passo a passo</button>
-      <button class="modo-tab" id="tab-converter" onclick="trocarModo('converter')">📄 Converter arquivo</button>
-    </div>
-
-    <!-- BARRA DE PREENCHIMENTO -->
-    <div class="preench-bar-wrap" id="preench-wrap">
-      <div class="preench-label"><span>Documento concluído</span><span id="preench-pct">0%</span></div>
-      <div class="preench-bar"><div class="preench-fill" id="preench-fill"></div></div>
-    </div>
-
-    <!-- FORMULÁRIO PASSO A PASSO -->
-    <div id="painel-passo">
     <div class="form-container">
       <div class="progress-bar">
         <div class="progress-step active" data-step="1"><span class="step-num">1</span><span class="step-label">Identificação</span></div>
@@ -163,8 +65,8 @@
         <!-- ETAPA 1 -->
         <div class="etapa" id="etapa-1">
           <div class="etapa-header">
-            <h2>Informações básicas</h2>
-            <p>Dados que aparecem na capa e folha de rosto</p>
+            <h2>Identificação do trabalho</h2>
+            <p>Informações que aparecem na capa e folha de rosto</p>
           </div>
 
           <div class="campo">
@@ -184,24 +86,22 @@
           </div>
 
           <div class="campo-grupo">
-            <div class="campo">
-              <label for="titulo">Título do trabalho <span class="req">*</span></label>
-              <input type="text" id="titulo" placeholder="Digite o título do trabalho" oninput="validarCampo(this,'min1');atualizarPreenchimento()"/>
-              <div class="campo-erro-msg" id="erro-titulo">Campo obrigatório</div>
+            <div class="campo obrigatorio">
+              <label for="titulo">Título <span class="req">*</span></label>
+              <input type="text" id="titulo" placeholder="Ex: Determinação do teor de álcool na gasolina"/>
             </div>
-            <div class="campo">
+            <div class="campo obrigatorio">
               <label for="autor">Autores <span class="req">*</span> <span class="dica">(separe por vírgula)</span></label>
-              <input type="text" id="autor" placeholder="Ex: Ana Silva, João Souza" oninput="validarCampo(this,'min1');atualizarPreenchimento()"/>
-              <div class="campo-erro-msg" id="erro-autor">Campo obrigatório</div>
+              <input type="text" id="autor" placeholder="Ex: Ana Silva, João Souza"/>
             </div>
           </div>
 
           <div class="campo-grupo">
-            <div class="campo"><label for="instituicao">Instituição</label><input type="text" id="instituicao" placeholder="Ex: CEFET/MG" oninput="atualizarPreenchimento()"/></div>
+            <div class="campo"><label for="instituicao">Instituição</label><input type="text" id="instituicao" placeholder="Ex: CEFET/MG"/></div>
             <div class="campo"><label for="campus">Campus</label><input type="text" id="campus" placeholder="Ex: Contagem"/></div>
           </div>
           <div class="campo-grupo">
-            <div class="campo"><label for="curso">Curso</label><input type="text" id="curso" placeholder="Ex: Controle Ambiental" oninput="atualizarPreenchimento()"/></div>
+            <div class="campo"><label for="curso">Curso</label><input type="text" id="curso" placeholder="Ex: Controle Ambiental"/></div>
             <div class="campo"><label for="disciplina">Disciplina</label><input type="text" id="disciplina" placeholder="Ex: Laboratório de Química"/></div>
           </div>
           <div class="campo-grupo">
@@ -233,16 +133,12 @@
             </div>
             <div class="campo campo-pequeno">
               <label for="ano">Ano</label>
-              <input type="number" id="ano" min="2000" max="2099" value="{{ ano }}" oninput="validarCampo(this,'ano')"/>
-              <div class="campo-erro-msg" id="erro-ano">Número inválido</div>
+              <input type="number" id="ano" min="2000" max="2099" value="{{ ano }}"/>
             </div>
           </div>
           <div class="campo">
             <label for="resumo">Resumo <span class="dica">(opcional)</span></label>
-            <div class="campo-wrap">
-              <textarea id="resumo" rows="3" class="com-contador" placeholder="Escreva um resumo em um único parágrafo..." oninput="atualizarContador(this);atualizarPreenchimento()"></textarea>
-              <span class="char-count" id="cnt-resumo">0 caracteres</span>
-            </div>
+            <textarea id="resumo" rows="3" placeholder="Resumo em um único parágrafo..."></textarea>
           </div>
           <div class="campo">
             <label for="palavras_chave">Palavras-chave <span class="dica">(separadas por ponto e vírgula)</span></label>
@@ -255,15 +151,13 @@
           </div>
         </div>
 
-        <!-- ETAPA 2 — SEÇÕES / CONTEÚDO -->
+        <!-- ETAPA 2 -->
         <div class="etapa oculto" id="etapa-2">
           <div class="etapa-header">
-            <h2>Conteúdo do trabalho</h2>
-            <p>Preencha cada seção. Seções em branco são ignoradas. Arraste para reordenar.</p>
-            <div class="instrucao-cite">
-              Use <code>[cite]</code>sua citação aqui<code>[/cite]</code> para formatar automaticamente conforme NBR 10520:2023.
-              <br/>Para novo parágrafo, pressione Enter duas vezes.
-            </div>
+            <h2>Seções do trabalho</h2>
+            <p>Preencha o conteúdo de cada seção. Seções em branco são ignoradas. Arraste para reordenar.</p>
+            <div class="instrucao-cite">Use <code>[cite]</code>sua citação aqui<code>[/cite]</code> para formatar automaticamente suas citações conforme a ABNT NBR 10520:2023 — trechos curtos aparecem entre aspas no parágrafo, trechos longos viram bloco recuado.
+            <br> Para que seja dado parágrafo, de um "Enter" a cada parágrafo</div>
           </div>
           <div id="secoes-container"></div>
           <button type="button" class="btn-add-secao" onclick="adicionarSecao()">+ Adicionar seção</button>
@@ -273,410 +167,188 @@
           </div>
         </div>
 
-        <!-- ETAPA 3 — REFERÊNCIAS -->
+        <!-- ETAPA 3 -->
         <div class="etapa oculto" id="etapa-3">
           <div class="etapa-header">
             <h2>Referências bibliográficas</h2>
-            <p>Adicione as referências no formato ABNT. Cada campo é uma referência.</p>
-            <div class="instrucao-cite" style="margin-top:.75rem">
-              💡 Não sabe o formato ABNT? Cole o link da fonte e clique em <strong>→ Converter para ABNT</strong> ao lado do campo.
-            </div>
+            <p>Uma por linha, conforme ABNT NBR 6023. Deixe vazio para não incluir.</p>
+          </div>
+          <div class="campo">
+            <textarea id="referencias" rows="12" placeholder="SOBRENOME, Nome. Título. Local: Editora, Ano."></textarea>
           </div>
 
-          <div id="refs-container"></div>
-
-          <button type="button" class="btn-add-secao" onclick="adicionarReferencia()" style="margin-top:4px">+ Nova referência</button>
-
-          <div class="etapa-nav" style="margin-top:1.5rem">
+          <div class="etapa-nav">
             <button type="button" class="btn-back" onclick="proximaEtapa(2)">← Voltar</button>
             <button type="button" class="btn-next" onclick="proximaEtapa(4)">Próximo: Anexos →</button>
           </div>
         </div>
 
-        <!-- ETAPA 4 — ANEXOS -->
+        <!-- ETAPA 4 -->
         <div class="etapa oculto" id="etapa-4">
           <div class="etapa-header">
             <h2>Anexos</h2>
-            <p>Imagens e materiais complementares ao trabalho (opcional).</p>
+            <p>Adicione imagens com legenda. Anexos em branco são ignorados. Arraste para reordenar.</p>
           </div>
 
           <div id="anexos-container"></div>
+
           <button type="button" class="btn-add-secao" onclick="adicionarAnexo()">+ Adicionar anexo</button>
 
           <div class="etapa-nav" style="margin-top:1.5rem">
             <button type="button" class="btn-back" onclick="proximaEtapa(3)">← Voltar</button>
-            <button type="button" class="btn-gerar" id="btn-gerar" onclick="gerarPDF()" {% if not pode_gerar %}disabled{% endif %}>
-              <span id="btn-texto">⚡ Gerar PDF</span>
-              <span id="btn-loading" class="oculto"><span class="spinner"></span>Gerando documento...</span>
+            <button type="button" class="btn-gerar" id="btn-gerar"
+              {% if not pode_gerar %}disabled title="Você já usou sua geração gratuita"{% endif %}
+              onclick="gerarPDF()">
+              <span id="btn-texto">✦ Gerar PDF em ABNT</span>
+              <span id="btn-loading" class="oculto">Gerando...</span>
             </button>
           </div>
 
-          <!-- RESULTADO -->
-          <div id="resultado" class="resultado oculto" style="margin-top:1.5rem">
-            <div class="resultado-inner">
-              <div class="resultado-icon">✓</div>
-              <h3>✅ Documento gerado com sucesso!</h3>
-              <p>Seu PDF está pronto para download.</p>
-              <a id="link-download" href="#" class="btn-download" download>⬇ Baixar PDF</a>
-              <div class="aviso-download">
-                <strong>⚠ Atenção</strong>
-                Seu documento será removido automaticamente ao atualizar ou fechar esta página.<br/>
-                <strong>Baixe o PDF antes de sair.</strong>
-              </div>
-              <button class="btn-novo" onclick="window.location.href='/formatar'">🔄 Gerar novo documento</button>
+          <!-- BARRA DE PROGRESSO -->
+          <div id="barra-progresso-wrap" class="oculto" style="margin-top:1.25rem">
+            <div style="display:flex;justify-content:space-between;font-size:0.78rem;color:var(--text-2);margin-bottom:6px">
+              <span id="barra-label">Preparando...</span>
+              <span id="barra-pct">0%</span>
+            </div>
+            <div style="height:8px;background:var(--border);border-radius:4px;overflow:hidden">
+              <div id="barra-fill" style="height:100%;background:linear-gradient(90deg,var(--accent),var(--green));border-radius:4px;transition:width 0.5s ease;width:0%"></div>
             </div>
           </div>
         </div>
 
       </form>
     </div>
-    </div>
 
-    <!-- PAINEL CONVERTER -->
-    <div id="painel-converter" class="oculto">
-      <div class="form-container">
-        <div class="etapa">
-          <div class="etapa-header">
-            <h2>Converter arquivo para ABNT</h2>
-            <p>Envie um arquivo <strong>.docx</strong> ou <strong>.pdf</strong> e receba um PDF formatado no padrão ABNT.</p>
-          </div>
-          <div class="instrucao-cite" style="margin-bottom:1.25rem">
-            <strong>⚠️ Como preparar seu arquivo:</strong><br/>
-            Marque cada título de seção em <strong>negrito</strong> no documento original.<br/>
-            <span style="color:var(--accent2)">Exemplo: <strong>Introdução</strong>, <strong>Metodologia</strong>, <strong>Conclusão</strong></span>
-          </div>
-          <div class="campo">
-            <label>Arquivo (.docx ou .pdf) <span class="req">*</span></label>
-            <div class="logo-upload-area" id="conv-upload-area" onclick="document.getElementById('conv-file-input').click()" style="text-align:center;padding:2rem">
-              <div id="conv-placeholder">
-                <span class="logo-icon" style="font-size:2rem">📄</span>
-                <span style="display:block;margin-top:8px;font-size:0.9rem">Clique para selecionar o arquivo</span>
-                <span class="logo-hint">.docx ou .pdf • Máx. 10MB</span>
-              </div>
-              <div id="conv-preview" class="oculto" style="display:flex;flex-direction:column;align-items:center;gap:8px">
-                <span style="font-size:2rem">✅</span>
-                <span id="conv-filename" style="font-size:0.88rem;color:var(--text)"></span>
-                <button type="button" class="logo-remover" onclick="event.stopPropagation();removerArqConv()">✕ Remover</button>
-              </div>
-            </div>
-            <input type="file" id="conv-file-input" accept=".docx,.pdf" style="display:none" onchange="selecionarArqConv(this)"/>
-          </div>
-          <div class="etapa-header" style="margin-top:1.5rem"><h2>Dados da capa</h2></div>
-          <div class="campo-grupo">
-            <div class="campo"><label for="conv-titulo">Título <span class="req">*</span></label><input type="text" id="conv-titulo" placeholder="Título do trabalho"/></div>
-            <div class="campo"><label for="conv-autor">Autores <span class="req">*</span></label><input type="text" id="conv-autor" placeholder="Ex: Ana Silva, João Souza"/></div>
-          </div>
-          <div class="campo-grupo">
-            <div class="campo"><label for="conv-instituicao">Instituição</label><input type="text" id="conv-instituicao" placeholder="Ex: CEFET/MG"/></div>
-            <div class="campo"><label for="conv-curso">Curso</label><input type="text" id="conv-curso" placeholder="Ex: Controle Ambiental"/></div>
-          </div>
-          <div class="campo-grupo">
-            <div class="campo"><label for="conv-orientador">Professor / Orientador</label><input type="text" id="conv-orientador" placeholder="Ex: Prof. João Silva"/></div>
-            <div class="campo"><label for="conv-cidade">Cidade</label><input type="text" id="conv-cidade" placeholder="Ex: Contagem"/></div>
-          </div>
-          <div class="campo-grupo">
-            <div class="campo"><label for="conv-tipo">Tipo de trabalho</label>
-              <select id="conv-tipo">
-                <option value="Relatório apresentado">Relatório de laboratório</option>
-                <option value="Trabalho de Conclusão de Curso">TCC</option>
-                <option value="Monografia">Monografia</option>
-                <option value="Trabalho Acadêmico">Trabalho Acadêmico</option>
-              </select>
-            </div>
-            <div class="campo campo-pequeno"><label for="conv-ano">Ano</label><input type="number" id="conv-ano" value="{{ ano }}" min="2000" max="2099"/></div>
-          </div>
-          <div id="conv-erro" class="oculto" style="background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);border-radius:var(--radius);color:#f87171;font-size:0.82rem;padding:10px 14px;margin-top:1rem"></div>
-          <div class="etapa-nav" style="margin-top:1.5rem">
-            <div></div>
-            <button type="button" class="btn-gerar" id="btn-converter" onclick="converterArquivo()">
-              <span id="conv-btn-texto">⚡ Converter para ABNT</span>
-              <span id="conv-btn-loading" class="oculto"><span class="spinner"></span>Convertendo...</span>
-            </button>
-          </div>
-          <div id="conv-resultado" class="resultado oculto" style="margin-top:1.5rem">
-            <div class="resultado-inner">
-              <div class="resultado-icon">✓</div>
-              <h3>✅ PDF convertido!</h3>
-              <p>Seu arquivo foi reformatado no padrão ABNT.</p>
-              <a id="conv-link-download" href="#" class="btn-download" download>⬇ Baixar PDF</a>
-              <div class="aviso-download"><strong>⚠ Atenção</strong>Arquivo removido após o download.<br/><strong>Baixe antes de sair.</strong></div>
-            </div>
-          </div>
+    <div class="resultado oculto" id="resultado">
+      <div class="resultado-inner">
+        <div class="resultado-icon">✓</div>
+        <h3>PDF gerado com sucesso!</h3>
+        <p>Capa, folha de rosto e seções formatadas conforme ABNT NBR 14724:2024.</p>
+        <a href="#" id="link-download" class="btn-download">⬇ Baixar PDF</a>
+        <div class="aviso-temporario">
+          <span class="aviso-icone">⚠</span>
+          <span>Este PDF <strong>não será armazenado</strong>. Ao fechar o site ele será deletado do nosso sistema — faça o download agora.</span>
         </div>
+        <button class="btn-novo" onclick="window.location.href='/formatar'">Gerar outro trabalho</button>
       </div>
     </div>
-
-    <!-- FAQ -->
-    <div class="faq-section">
-      <h3>Dúvidas frequentes</h3>
-      <div class="faq-item2"><div class="faq-q2" onclick="this.parentElement.classList.toggle('open')">Os dados ficam salvos?</div><div class="faq-a2">Não. Os dados existem apenas durante a sessão atual. Ao fechar ou atualizar a página tudo é apagado.</div></div>
-      <div class="faq-item2"><div class="faq-q2" onclick="this.parentElement.classList.toggle('open')">Posso recuperar o PDF depois?</div><div class="faq-a2">Não. O PDF é excluído automaticamente dos servidores assim que você faz o download. Salve o arquivo antes de sair.</div></div>
-      <div class="faq-item2"><div class="faq-q2" onclick="this.parentElement.classList.toggle('open')">Como funciona?</div><div class="faq-a2">Você preenche os campos com as informações do trabalho e o sistema gera automaticamente o PDF com formatação ABNT correta — capa, folha de rosto, margens, fonte, espaçamento e referências.</div></div>
-    </div>
-
   </main>
 
-  <!-- TELA DE PROCESSAMENTO -->
-  <div class="processando-overlay" id="processando-overlay">
-    <div class="processando-card">
-      <h3>Gerando seu documento</h3>
-      <p>Aguarde enquanto aplicamos a formatação ABNT...</p>
-      <div class="proc-etapas">
-        <div class="proc-etapa" id="proc-1"><span class="proc-icone">⏳</span><span>Estrutura criada</span></div>
-        <div class="proc-etapa" id="proc-2"><span class="proc-icone">⏳</span><span>Aplicando formatação ABNT</span></div>
-        <div class="proc-etapa" id="proc-3"><span class="proc-icone">⏳</span><span>Gerando PDF</span></div>
-      </div>
-      <div class="proc-barra-wrap"><div class="proc-barra-fill" id="proc-barra"></div></div>
-      <div class="proc-pct" id="proc-pct">0%</div>
-    </div>
-  </div>
-
-  <!-- MODAL CONVERTER URL PARA ABNT -->
-  <div class="modal-url" id="modal-url">
-    <div class="modal-url-inner">
-      <h3>🔗 Converter link para referência ABNT</h3>
-      <p>Cole o link da sua fonte. O sistema vai gerar a referência bibliográfica no padrão ABNT automaticamente.</p>
-      <input type="text" id="modal-url-input" placeholder="https://exemplo.com/artigo"/>
-      <div id="modal-url-resultado" class="ref-convertida"></div>
-      <div class="modal-url-acoes">
-        <button class="btn-modal-cancel" onclick="fecharModalUrl()">Cancelar</button>
-        <button class="btn-modal-ok" id="modal-url-btn" onclick="converterUrlAbnt()">Converter</button>
-      </div>
-    </div>
-  </div>
-
   <script>
+    const FREE_LIMIT = 1;
+    let contadorAtual = {{ 1 if not pode_gerar else 0 }};
     const PODE_GERAR = {{ 'true' if pode_gerar else 'false' }};
-    let refAtiva = null; // referência que chamou o modal de URL
-
-    // ===== ABAS =====
-    function trocarModo(modo) {
-      const passo = document.getElementById('painel-passo');
-      const conv  = document.getElementById('painel-converter');
-      const preench = document.getElementById('preench-wrap');
-      document.getElementById('tab-passo').classList.toggle('active', modo==='passo');
-      document.getElementById('tab-converter').classList.toggle('active', modo==='converter');
-      passo.classList.toggle('oculto', modo!=='passo');
-      conv.classList.toggle('oculto', modo!=='converter');
-      preench.classList.toggle('oculto', modo!=='passo');
-    }
-
-    // ===== VALIDAÇÃO CAMPOS =====
-    function validarCampo(el, tipo) {
-      const val = el.value.trim();
-      let ok = true;
-      if (tipo === 'min1') ok = val.length > 0;
-      if (tipo === 'ano')  ok = /^\d{4}$/.test(val) && parseInt(val) >= 2000 && parseInt(val) <= 2099;
-      el.classList.toggle('valido', ok && val.length > 0);
-      el.classList.toggle('invalido', !ok && val.length > 0);
-      const erroId = 'erro-' + el.id;
-      const erroEl = document.getElementById(erroId);
-      if (erroEl) erroEl.classList.toggle('visivel', !ok && val.length > 0);
-      return ok;
-    }
-
-    // ===== CONTADOR CARACTERES =====
-    function atualizarContador(el) {
-      const cnt = document.getElementById('cnt-' + el.id);
-      if (cnt) cnt.textContent = el.value.length + ' caracteres';
-    }
-
-    // ===== BARRA PREENCHIMENTO =====
-    function atualizarPreenchimento() {
-      let pct = 0;
-      const titulo = document.getElementById('titulo').value.trim();
-      const autor  = document.getElementById('autor').value.trim();
-      const inst   = document.getElementById('instituicao').value.trim();
-      const curso  = document.getElementById('curso').value.trim();
-      const resumo = document.getElementById('resumo').value.trim();
-      if (titulo) pct += 20;
-      if (autor)  pct += 20;
-      if (inst)   pct += 10;
-      if (curso)  pct += 10;
-      if (resumo) pct += 10;
-      // verifica seções
-      let temSecao = false;
-      document.querySelectorAll('.secao-textarea').forEach(function(t){ if(t.value.trim()) temSecao = true; });
-      if (temSecao) pct += 20;
-      // verifica referências
-      let temRef = false;
-      document.querySelectorAll('.ref-textarea').forEach(function(t){ if(t.value.trim()) temRef = true; });
-      if (temRef) pct += 10;
-      pct = Math.min(pct, 100);
-      document.getElementById('preench-fill').style.width = pct + '%';
-      document.getElementById('preench-pct').textContent = pct + '%';
-    }
-
-    // ===== REFERÊNCIAS =====
-    let refCount = 0;
-    function adicionarReferencia(texto) {
-      refCount++;
-      const id = refCount;
-      const container = document.getElementById('refs-container');
-      const div = document.createElement('div');
-      div.className = 'ref-item';
-      div.id = 'ref-item-' + id;
-      div.innerHTML =
-        '<div style="flex:1">' +
-        '<textarea class="ref-textarea" rows="2" placeholder="Ex: SILVA, João. Título do livro. Editora, 2024." oninput="atualizarPreenchimento()">' + (texto||'') + '</textarea>' +
-        '<div class="ref-convertida" id="ref-conv-' + id + '"></div>' +
-        '</div>' +
-        '<div class="btn-ref-acoes">' +
-        '<button type="button" class="btn-ref-abnt" onclick="abrirModalUrl(' + id + ')" title="Converter link para ABNT">🔗 → ABNT</button>' +
-        '<button type="button" class="btn-ref-remover" onclick="document.getElementById(\'ref-item-'+id+'\').remove();atualizarPreenchimento()">✕</button>' +
-        '</div>';
-      container.appendChild(div);
-    }
-
-    function abrirModalUrl(refId) {
-      refAtiva = refId;
-      document.getElementById('modal-url-input').value = '';
-      document.getElementById('modal-url-resultado').style.display = 'none';
-      document.getElementById('modal-url-resultado').textContent = '';
-      document.getElementById('modal-url').classList.add('aberto');
-    }
-
-    function fecharModalUrl() {
-      document.getElementById('modal-url').classList.remove('aberto');
-      refAtiva = null;
-    }
-
-    async function converterUrlAbnt() {
-      const url = document.getElementById('modal-url-input').value.trim();
-      if (!url) return;
-      const btn = document.getElementById('modal-url-btn');
-      btn.textContent = 'Convertendo...';
-      btn.disabled = true;
-      try {
-        const resp = await fetch('/converter-url-abnt', {
-          method: 'POST',
-          headers: {'Content-Type':'application/json'},
-          body: JSON.stringify({url: url})
-        });
-        const data = await resp.json();
-        if (data.referencia) {
-          const resEl = document.getElementById('modal-url-resultado');
-          resEl.textContent = data.referencia;
-          resEl.style.display = 'block';
-          // Aplica na referência ativa
-          if (refAtiva) {
-            const item = document.getElementById('ref-item-' + refAtiva);
-            if (item) item.querySelector('.ref-textarea').value = data.referencia;
-          }
-          setTimeout(fecharModalUrl, 1500);
-        } else {
-          document.getElementById('modal-url-resultado').textContent = data.erro || 'Não foi possível converter.';
-          document.getElementById('modal-url-resultado').style.display = 'block';
-          document.getElementById('modal-url-resultado').style.color = '#f87171';
-        }
-      } catch {
-        document.getElementById('modal-url-resultado').textContent = 'Erro de conexão.';
-        document.getElementById('modal-url-resultado').style.display = 'block';
-      } finally {
-        btn.textContent = 'Converter';
-        btn.disabled = false;
-      }
-    }
-
-    function coletarReferencias() {
-      const refs = [];
-      document.querySelectorAll('.ref-textarea').forEach(function(t){ if(t.value.trim()) refs.push(t.value.trim()); });
-      return refs.join('\n');
-    }
-
-    // ===== TELA PROCESSAMENTO =====
-    let procTimer = null;
-    function iniciarProcessamento() {
-      document.getElementById('processando-overlay').classList.add('ativo');
-      const etapas = [
-        {id:'proc-1', pct:10, icone:'✓'},
-        {id:'proc-2', pct:50, icone:'✓'},
-        {id:'proc-3', pct:85, icone:'⏳'},
-      ];
-      let i = 0;
-      function avan() {
-        if (i < etapas.length) {
-          const e = etapas[i];
-          const el = document.getElementById(e.id);
-          el.querySelector('.proc-icone').textContent = e.icone;
-          el.classList.add('feita');
-          document.getElementById('proc-barra').style.width = e.pct + '%';
-          document.getElementById('proc-pct').textContent = e.pct + '%';
-          i++;
-          procTimer = setTimeout(avan, 900);
-        }
-      }
-      procTimer = setTimeout(avan, 400);
-    }
-
-    function finalizarProcessamento() {
-      clearTimeout(procTimer);
-      ['proc-1','proc-2','proc-3'].forEach(function(id){
-        const el = document.getElementById(id);
-        el.querySelector('.proc-icone').textContent = '✓';
-        el.classList.add('feita');
-      });
-      document.getElementById('proc-barra').style.width = '100%';
-      document.getElementById('proc-pct').textContent = '100%';
-      setTimeout(function(){ document.getElementById('processando-overlay').classList.remove('ativo'); }, 500);
-    }
 
     // ===== ANEXOS =====
-    let anexoId = 0;
+    let contadorAnexos = 0;
+
     function adicionarAnexo(dados) {
-      anexoId++;
-      const id = anexoId;
+      contadorAnexos++;
+      const id = contadorAnexos;
       const container = document.getElementById('anexos-container');
+
       const div = document.createElement('div');
       div.className = 'secao-item';
+      div.dataset.anexoId = id;
       div.draggable = true;
+
       div.innerHTML = `
         <div class="secao-header">
-          <span class="secao-drag">⠿</span>
+          <div class="secao-drag" title="Arrastar para reordenar">&#8943;</div>
           <span class="secao-titulo-preview">Anexo ${id}</span>
-          <button type="button" class="secao-remover" onclick="removerAnexo(this)">✕</button>
+          <button type="button" class="secao-remover" onclick="removerAnexo(this)" title="Remover anexo">&#x2715;</button>
         </div>
         <div class="secao-body">
           <div class="campo">
             <label>Imagem do anexo <span class="dica">(PNG ou JPG, opcional)</span></label>
             <div class="anexo-upload-area" onclick="triggerAnexoInput(this)">
-              <div class="anexo-placeholder"><span class="logo-icon">&#8679;</span><span>Clique para enviar a imagem</span><span class="logo-hint">PNG ou JPG • Máx. 10MB</span></div>
-              <div class="anexo-preview oculto"><img class="anexo-img" src="" alt="Anexo"/><button type="button" class="logo-remover" onclick="removerImagemAnexo(event, this)">✕ Remover imagem</button></div>
+              <div class="anexo-placeholder">
+                <span class="logo-icon">&#8679;</span>
+                <span>Clique para enviar a imagem</span>
+                <span class="logo-hint">PNG ou JPG &bull; M&aacute;x. 10MB</span>
+              </div>
+              <div class="anexo-preview oculto">
+                <img class="anexo-img" src="" alt="Anexo"/>
+                <button type="button" class="logo-remover" onclick="removerImagemAnexo(event, this)">&#x2715; Remover imagem</button>
+              </div>
               <input type="file" class="anexo-file-input" accept=".png,.jpg,.jpeg" style="display:none" onchange="previewAnexo(this)"/>
             </div>
           </div>
-          <div class="campo"><label>Legenda <span class="dica">(ex: Figura 1 — Resultado)</span></label><input type="text" class="anexo-legenda" placeholder="Ex: Figura 1 — Gráfico de temperatura"/></div>
-          <div class="campo"><label>Fonte <span class="dica">(opcional)</span></label><input type="text" class="anexo-fonte" placeholder="Ex: Elaborado pelos autores (2024)"/></div>
+          <div class="campo">
+            <label>Legenda <span class="dica">(ex: Figura 1 &mdash; Resultado do experimento)</span></label>
+            <input type="text" class="anexo-legenda" placeholder="Ex: Figura 1 &mdash; Gr&aacute;fico de temperatura por tempo"/>
+          </div>
+          <div class="campo">
+            <label>Fonte <span class="dica">(opcional)</span></label>
+            <input type="text" class="anexo-fonte" placeholder="Ex: Elaborado pelos autores (2024)"/>
+          </div>
           <div class="campo">
             <label>Tamanho da imagem no PDF</label>
             <div class="anexo-tamanho-grupo">
-              <label class="anexo-tamanho-opcao"><input type="radio" name="tamanho-anexo-${id}" class="anexo-tamanho" value="pequeno"/><span class="tamanho-label"><span class="tamanho-icone tamanho-p"></span><span class="tamanho-nome">Pequeno</span><span class="tamanho-desc">~40%</span></span></label>
-              <label class="anexo-tamanho-opcao"><input type="radio" name="tamanho-anexo-${id}" class="anexo-tamanho" value="medio" checked/><span class="tamanho-label"><span class="tamanho-icone tamanho-m"></span><span class="tamanho-nome">Médio</span><span class="tamanho-desc">~65%</span></span></label>
-              <label class="anexo-tamanho-opcao"><input type="radio" name="tamanho-anexo-${id}" class="anexo-tamanho" value="grande"/><span class="tamanho-label"><span class="tamanho-icone tamanho-g"></span><span class="tamanho-nome">Grande</span><span class="tamanho-desc">100%</span></span></label>
+              <label class="anexo-tamanho-opcao">
+                <input type="radio" name="tamanho-anexo-${id}" class="anexo-tamanho" value="pequeno"/>
+                <span class="tamanho-label">
+                  <span class="tamanho-icone tamanho-p"></span>
+                  <span class="tamanho-nome">Pequeno</span>
+                  <span class="tamanho-desc">~40% da largura</span>
+                </span>
+              </label>
+              <label class="anexo-tamanho-opcao">
+                <input type="radio" name="tamanho-anexo-${id}" class="anexo-tamanho" value="medio" checked/>
+                <span class="tamanho-label">
+                  <span class="tamanho-icone tamanho-m"></span>
+                  <span class="tamanho-nome">M&eacute;dio</span>
+                  <span class="tamanho-desc">~65% da largura</span>
+                </span>
+              </label>
+              <label class="anexo-tamanho-opcao">
+                <input type="radio" name="tamanho-anexo-${id}" class="anexo-tamanho" value="grande"/>
+                <span class="tamanho-label">
+                  <span class="tamanho-icone tamanho-g"></span>
+                  <span class="tamanho-nome">Grande</span>
+                  <span class="tamanho-desc">100% da largura</span>
+                </span>
+              </label>
             </div>
           </div>
-        </div>`;
+        </div>
+      `;
+
       container.appendChild(div);
       ativarDragAnexo(div);
+
       div.querySelector('.anexo-legenda').addEventListener('input', function() {
-        div.querySelector('.secao-titulo-preview').textContent = this.value.trim() || ('Anexo ' + id);
+        const preview = div.querySelector('.secao-titulo-preview');
+        preview.textContent = this.value.trim() || ('Anexo ' + id);
       });
+
       return div;
     }
 
-    function removerAnexo(btn) { btn.closest('.secao-item').remove(); }
-    function triggerAnexoInput(area) { area.querySelector('.anexo-file-input').click(); }
+    function removerAnexo(btn) {
+      btn.closest('.secao-item').remove();
+    }
+
+    function triggerAnexoInput(area) {
+      area.querySelector('.anexo-file-input').click();
+    }
 
     function previewAnexo(input) {
       const area = input.closest('.anexo-upload-area');
+      const placeholder = area.querySelector('.anexo-placeholder');
+      const preview = area.querySelector('.anexo-preview');
+      const img = area.querySelector('.anexo-img');
       const file = input.files[0];
       if (!file) return;
-      if (file.size > 10*1024*1024) { mostrarToast('Imagem muito grande. Máximo 10MB.','erro'); return; }
+      if (file.size > 10 * 1024 * 1024) {
+        mostrarToast('Imagem muito grande. M\u00e1ximo 10MB.', 'erro');
+        return;
+      }
       const reader = new FileReader();
       reader.onload = function(e) {
-        area.querySelector('.anexo-img').src = e.target.result;
-        area.querySelector('.anexo-placeholder').classList.add('oculto');
-        area.querySelector('.anexo-preview').classList.remove('oculto');
+        img.src = e.target.result;
+        placeholder.classList.add('oculto');
+        preview.classList.remove('oculto');
       };
       reader.readAsDataURL(file);
     }
@@ -684,10 +356,14 @@
     function removerImagemAnexo(event, btn) {
       event.stopPropagation();
       const area = btn.closest('.anexo-upload-area');
-      area.querySelector('.anexo-img').src = '';
-      area.querySelector('.anexo-file-input').value = '';
-      area.querySelector('.anexo-placeholder').classList.remove('oculto');
-      area.querySelector('.anexo-preview').classList.add('oculto');
+      const placeholder = area.querySelector('.anexo-placeholder');
+      const preview = area.querySelector('.anexo-preview');
+      const img = area.querySelector('.anexo-img');
+      const fileInput = area.querySelector('.anexo-file-input');
+      img.src = '';
+      fileInput.value = '';
+      placeholder.classList.remove('oculto');
+      preview.classList.add('oculto');
     }
 
     function coletarAnexos() {
@@ -700,13 +376,18 @@
         const tamanhoEl = item.querySelector('.anexo-tamanho:checked');
         const tamanho = tamanhoEl ? tamanhoEl.value : 'medio';
         const imgSrc = (img && img.src && img.src !== '' && !img.src.endsWith('/')) ? img.src : '';
-        if (legenda || imgSrc) anexos.push({ imagem:imgSrc, legenda:legenda, fonte:fonte, tamanho:tamanho });
+        if (legenda || imgSrc) {
+          anexos.push({ imagem: imgSrc, legenda: legenda, fonte: fonte, tamanho: tamanho });
+        }
       });
       return anexos;
     }
 
     function ativarDragAnexo(el) {
-      el.addEventListener('dragstart', function(e) { e.dataTransfer.effectAllowed='move'; el.classList.add('dragging'); });
+      el.addEventListener('dragstart', function(e) {
+        e.dataTransfer.effectAllowed = 'move';
+        el.classList.add('dragging');
+      });
       el.addEventListener('dragend', function() { el.classList.remove('dragging'); });
       el.addEventListener('dragover', function(e) {
         e.preventDefault();
@@ -714,96 +395,31 @@
         const dragging = container.querySelector('.dragging');
         if (!dragging || dragging === el) return;
         const rect = el.getBoundingClientRect();
-        if (e.clientY < rect.top + rect.height/2) container.insertBefore(dragging, el);
-        else container.insertBefore(dragging, el.nextSibling);
+        const mid = rect.top + rect.height / 2;
+        if (e.clientY < mid) {
+          container.insertBefore(dragging, el);
+        } else {
+          container.insertBefore(dragging, el.nextSibling);
+        }
       });
     }
 
-    // ===== PATCH FETCH =====
+    // Patch: injeta anexos no payload antes de enviar para o servidor
     (function() {
       const _fetch = window.fetch;
       window.fetch = function(url, options) {
         if (typeof url === 'string' && url.includes('/gerar-pdf') && options && options.body) {
           try {
             const payload = JSON.parse(options.body);
-            if (!payload.anexos) payload.anexos = coletarAnexos();
-            if (!payload.referencias) payload.referencias = coletarReferencias();
+            if (!payload.anexos) {
+              payload.anexos = coletarAnexos();
+            }
             options = Object.assign({}, options, { body: JSON.stringify(payload) });
           } catch(e) {}
         }
         return _fetch.apply(this, arguments);
       };
     })();
-
-    // ===== CONVERTER ARQUIVO =====
-    let arquivoConv = null;
-    function selecionarArqConv(input) {
-      const file = input.files[0];
-      if (!file) return;
-      if (file.size > 10*1024*1024) { mostrarToast('Arquivo muito grande. Máximo 10MB.','erro'); return; }
-      arquivoConv = file;
-      document.getElementById('conv-placeholder').classList.add('oculto');
-      document.getElementById('conv-preview').classList.remove('oculto');
-      document.getElementById('conv-filename').textContent = file.name;
-    }
-    function removerArqConv() {
-      arquivoConv = null;
-      document.getElementById('conv-file-input').value = '';
-      document.getElementById('conv-placeholder').classList.remove('oculto');
-      document.getElementById('conv-preview').classList.add('oculto');
-    }
-    async function converterArquivo() {
-      const erroEl = document.getElementById('conv-erro');
-      erroEl.classList.add('oculto');
-      if (!arquivoConv) { erroEl.textContent='Selecione um arquivo .docx ou .pdf.'; erroEl.classList.remove('oculto'); return; }
-      const titulo = document.getElementById('conv-titulo').value.trim();
-      const autor  = document.getElementById('conv-autor').value.trim();
-      if (!titulo) { erroEl.textContent='Preencha o título.'; erroEl.classList.remove('oculto'); return; }
-      if (!autor)  { erroEl.textContent='Preencha os autores.'; erroEl.classList.remove('oculto'); return; }
-      const btn = document.getElementById('btn-converter');
-      document.getElementById('conv-btn-texto').classList.add('oculto');
-      document.getElementById('conv-btn-loading').classList.remove('oculto');
-      btn.disabled = true;
-      const fd = new FormData();
-      fd.append('arquivo', arquivoConv);
-      fd.append('titulo', titulo);
-      fd.append('autor', autor);
-      fd.append('instituicao', document.getElementById('conv-instituicao').value.trim());
-      fd.append('curso', document.getElementById('conv-curso').value.trim());
-      fd.append('orientador', document.getElementById('conv-orientador').value.trim());
-      fd.append('cidade', document.getElementById('conv-cidade').value.trim());
-      fd.append('tipo_trabalho', document.getElementById('conv-tipo').value);
-      fd.append('ano', document.getElementById('conv-ano').value.trim());
-      try {
-        const resp = await fetch('/converter-para-abnt', { method:'POST', body:fd });
-        const data = await resp.json();
-        if (!resp.ok || data.erro) { erroEl.textContent=data.erro||'Erro ao converter.'; erroEl.classList.remove('oculto'); return; }
-        document.getElementById('conv-link-download').href = '/download/' + data.arquivo;
-        document.getElementById('conv-resultado').classList.remove('oculto');
-        document.getElementById('conv-resultado').scrollIntoView({behavior:'smooth',block:'center'});
-        mostrarToast('Arquivo convertido com sucesso!','sucesso');
-      } catch { erroEl.textContent='Erro de conexão.'; erroEl.classList.remove('oculto'); }
-      finally {
-        document.getElementById('conv-btn-texto').classList.remove('oculto');
-        document.getElementById('conv-btn-loading').classList.add('oculto');
-        btn.disabled = false;
-      }
-    }
-
-    function mostrarToast(msg, tipo) {
-      let toast = document.getElementById('toast-global');
-      if (!toast) { toast=document.createElement('div'); toast.id='toast-global'; toast.className='toast'; document.body.appendChild(toast); }
-      toast.textContent = msg;
-      toast.className = 'toast ' + (tipo||'');
-      setTimeout(()=>toast.classList.add('show'),10);
-      setTimeout(()=>toast.classList.remove('show'),3200);
-    }
-
-    // Inicializa referência inicial
-    document.addEventListener('DOMContentLoaded', function() {
-      adicionarReferencia();
-      atualizarPreenchimento();
-    });
   </script>
   <script src="/static/js/app.js"></script>
 </body>

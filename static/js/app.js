@@ -6,7 +6,7 @@ const SECOES_PADRAO = [
   "Procedimentos","Resultados e Discussões","Conclusão"
 ];
 
-let secoes = SECOES_PADRAO.map(t => ({ titulo: t, conteudo: "", imagens: [] }));
+let secoes = SECOES_PADRAO.map(t => ({ titulo: t, conteudo: "" }));
 let draggingIdx = null;
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -19,11 +19,7 @@ function salvarSecoesDoDOM() {
   secoes = secoes.map((s, i) => {
     const tEl = document.getElementById("secao-titulo-" + i);
     const cEl = document.getElementById("secao-conteudo-" + i);
-    return {
-      titulo: tEl ? tEl.value : s.titulo,
-      conteudo: cEl ? cEl.value : s.conteudo,
-      imagens: coletarImagensSecao(i)
-    };
+    return { titulo: tEl ? tEl.value : s.titulo, conteudo: cEl ? cEl.value : s.conteudo };
   });
 }
 
@@ -70,15 +66,6 @@ function renderizarSecoes() {
     const contEsc = (s.conteudo || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
     const statusClass = s.conteudo.trim() ? "tem-conteudo" : "sem-conteudo";
     const statusTxt   = s.conteudo.trim() ? "✓ Será incluída no PDF" : "○ Em branco — não será incluída";
-
-    // Reconstrói imagens salvas
-    let imagensHtml = '';
-    if (s.imagens && s.imagens.length > 0) {
-      s.imagens.forEach(function(img, j) {
-        imagensHtml += buildImagemHtml(i, j, img);
-      });
-    }
-
     html +=
       '<div class="secao-card" id="secao-card-' + i + '" draggable="true"' +
       ' ondragstart="dragStart(' + i + ')" ondragover="dragOver(event,' + i + ')"' +
@@ -93,8 +80,6 @@ function renderizarSecoes() {
       '<textarea class="secao-textarea" id="secao-conteudo-' + i + '" rows="6"' +
       ' placeholder="Digite o conteúdo. Separe parágrafos com linha em branco."' +
       ' oninput="atualizarConteudoLive(' + i + ', this.value)">' + contEsc + '</textarea>' +
-      '<div class="secao-imagens-container" id="secao-imgs-' + i + '">' + imagensHtml + '</div>' +
-      '<button type="button" class="btn-add-secao btn-add-img-secao" onclick="adicionarImagemSecao(' + i + ')" style="margin-top:8px;font-size:0.78rem;padding:7px;">🖼 Inserir imagem nesta seção</button>' +
       '<div class="secao-status ' + statusClass + '" id="secao-status-' + i + '">' + statusTxt + '</div>' +
       '</div>';
   }
@@ -113,7 +98,7 @@ function atualizarConteudoLive(i, val) {
 
 function adicionarSecao() {
   salvarSecoesDoDOM();
-  secoes.push({ titulo: "Nova seção", conteudo: "", imagens: [] });
+  secoes.push({ titulo: "Nova seção", conteudo: "" });
   renderizarSecoes();
   const idx = secoes.length - 1;
   setTimeout(() => {
@@ -177,6 +162,54 @@ async function removerLogo(e) {
   document.getElementById("logo-img").src = "";
 }
 
+let _barraTimer = null;
+
+function _iniciarBarra() {
+  const wrap  = document.getElementById("barra-progresso-wrap");
+  const fill  = document.getElementById("barra-fill");
+  const pct   = document.getElementById("barra-pct");
+  const label = document.getElementById("barra-label");
+  if (!wrap) return;
+  wrap.classList.remove("oculto");
+  fill.style.width = "0%";
+  pct.textContent  = "0%";
+  label.textContent = "Preparando...";
+
+  const etapas = [
+    { w: 20,  t: 300,  msg: "Estruturando o documento..." },
+    { w: 45,  t: 800,  msg: "Aplicando formatação ABNT..." },
+    { w: 70,  t: 1500, msg: "Gerando capa e seções..." },
+    { w: 90,  t: 2400, msg: "Finalizando PDF..." },
+    { w: 99,  t: 3200, msg: "Quase pronto..." },
+  ];
+
+  etapas.forEach(function(e) {
+    _barraTimer = setTimeout(function() {
+      fill.style.width  = e.w + "%";
+      pct.textContent   = e.w + "%";
+      label.textContent = e.msg;
+    }, e.t);
+  });
+}
+
+function _finalizarBarra() {
+  clearTimeout(_barraTimer);
+  const fill  = document.getElementById("barra-fill");
+  const pct   = document.getElementById("barra-pct");
+  const label = document.getElementById("barra-label");
+  if (!fill) return;
+  fill.style.width  = "100%";
+  pct.textContent   = "100%";
+  label.textContent = "PDF gerado!";
+}
+
+function _resetarBarra() {
+  const wrap = document.getElementById("barra-progresso-wrap");
+  const fill = document.getElementById("barra-fill");
+  if (wrap) wrap.classList.add("oculto");
+  if (fill) fill.style.width = "0%";
+}
+
 async function gerarPDF() {
   if (!PODE_GERAR) { mostrarToast("Você já usou sua geração gratuita", "erro"); return; }
   salvarSecoesDoDOM();
@@ -187,6 +220,7 @@ async function gerarPDF() {
   btnTexto.classList.add("oculto");
   btnLoading.classList.remove("oculto");
   btnGerar.disabled = true;
+  _iniciarBarra();
 
   const dados = {
     titulo:         document.getElementById("titulo").value.trim(),
@@ -217,15 +251,21 @@ async function gerarPDF() {
 
     if (resp.status === 401) { window.location.href = "/"; return; }
     if (resp.status === 403) { mostrarToast("Limite atingido. Faça upgrade!", "erro"); return; }
-    if (!resp.ok || data.erro) { mostrarToast(data.erro || "Erro ao gerar PDF.", "erro"); return; }
+    if (!resp.ok || data.erro) { mostrarToast(data.erro || "Erro ao gerar PDF.", "erro"); _resetarBarra(); return; }
 
-    document.getElementById("link-download").href = "/download/" + data.arquivo;
-    document.getElementById("resultado").classList.remove("oculto");
-    document.getElementById("resultado").scrollIntoView({ behavior: "smooth", block: "center" });
-    mostrarToast("PDF gerado com sucesso!", "sucesso");
-    btnGerar.disabled = true;
+    _finalizarBarra();
+    setTimeout(function() {
+      document.getElementById("link-download").href = "/download/" + data.arquivo;
+      document.getElementById("resultado").classList.remove("oculto");
+      document.getElementById("resultado").scrollIntoView({ behavior: "smooth", block: "center" });
+      mostrarToast("PDF gerado com sucesso!", "sucesso");
+      btnGerar.disabled = true;
+    }, 400);
 
-  } catch { mostrarToast("Erro de conexão.", "erro"); }
+  } catch {
+    mostrarToast("Erro de conexão.", "erro");
+    _resetarBarra();
+  }
   finally {
     btnTexto.classList.remove("oculto");
     btnLoading.classList.add("oculto");
@@ -242,99 +282,4 @@ function mostrarToast(msg, tipo) {
   setTimeout(() => toast.classList.add("show"), 10);
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => toast.classList.remove("show"), 3200);
-}
-
-// ===== IMAGENS INLINE NAS SEÇÕES =====
-
-let imgSecaoCounter = 0;
-
-function buildImagemHtml(secaoIdx, imgIdx, dadosSalvos) {
-  imgSecaoCounter++;
-  const uid = imgSecaoCounter;
-  const imgSrc = (dadosSalvos && dadosSalvos.imagem) ? dadosSalvos.imagem : '';
-  const legenda = (dadosSalvos && dadosSalvos.legenda) ? dadosSalvos.legenda.replace(/"/g,'&quot;') : '';
-  const fonte = (dadosSalvos && dadosSalvos.fonte) ? dadosSalvos.fonte.replace(/"/g,'&quot;') : '';
-  const tamanho = (dadosSalvos && dadosSalvos.tamanho) ? dadosSalvos.tamanho : 'medio';
-  const temImg = imgSrc ? '' : 'oculto';
-  const semImg = imgSrc ? 'oculto' : '';
-
-  return '<div class="img-secao-wrapper" data-secao="' + secaoIdx + '" data-uid="' + uid + '" style="border:1px solid var(--border);border-radius:10px;padding:12px;margin-top:10px;background:var(--surface)">' +
-    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">' +
-    '<span style="font-size:0.8rem;font-weight:600;color:var(--text2)">🖼 Imagem na seção</span>' +
-    '<button type="button" class="secao-remover" onclick="this.closest(\'.img-secao-wrapper\').remove()">✕</button>' +
-    '</div>' +
-    '<div class="anexo-upload-area" onclick="this.querySelector(\'.img-sec-file-' + uid + '\').click()" style="margin-bottom:8px">' +
-    '<div class="anexo-placeholder ' + semImg + '">' +
-    '<span class="logo-icon">⬆</span><span>Clique para enviar imagem</span><span class="logo-hint">PNG ou JPG • Máx. 10MB</span>' +
-    '</div>' +
-    '<div class="anexo-preview ' + temImg + '">' +
-    '<img class="anexo-img" src="' + imgSrc + '" alt="Imagem da seção"/>' +
-    '<button type="button" class="logo-remover" onclick="event.stopPropagation();removerImgSecaoPreview(this)">✕ Remover imagem</button>' +
-    '</div>' +
-    '<input type="file" class="img-sec-file-' + uid + '" accept=".png,.jpg,.jpeg" style="display:none" onchange="previewImgSecaoInline(this)"/>' +
-    '</div>' +
-    '<div class="campo" style="margin-bottom:8px">' +
-    '<label style="font-size:0.78rem">Legenda <span class="dica">(ex: Figura 1 — Descrição)</span></label>' +
-    '<input type="text" class="img-secao-legenda" value="' + legenda + '" placeholder="Ex: Figura 1 — Resultado do experimento"/>' +
-    '</div>' +
-    '<div class="campo" style="margin-bottom:8px">' +
-    '<label style="font-size:0.78rem">Fonte <span class="dica">(opcional)</span></label>' +
-    '<input type="text" class="img-secao-fonte" value="' + fonte + '" placeholder="Ex: Elaborado pelos autores (2024)"/>' +
-    '</div>' +
-    '<div class="campo">' +
-    '<label style="font-size:0.78rem">Tamanho no PDF</label>' +
-    '<div class="anexo-tamanho-grupo">' +
-    '<label class="anexo-tamanho-opcao"><input type="radio" name="img-tam-' + uid + '" class="img-secao-tamanho" value="pequeno"' + (tamanho==='pequeno'?' checked':'') + '/><span class="tamanho-label"><span class="tamanho-icone tamanho-p"></span><span class="tamanho-nome">Pequeno</span><span class="tamanho-desc">~40%</span></span></label>' +
-    '<label class="anexo-tamanho-opcao"><input type="radio" name="img-tam-' + uid + '" class="img-secao-tamanho" value="medio"' + (tamanho==='medio'?' checked':'') + '/><span class="tamanho-label"><span class="tamanho-icone tamanho-m"></span><span class="tamanho-nome">Médio</span><span class="tamanho-desc">~65%</span></span></label>' +
-    '<label class="anexo-tamanho-opcao"><input type="radio" name="img-tam-' + uid + '" class="img-secao-tamanho" value="grande"' + (tamanho==='grande'?' checked':'') + '/><span class="tamanho-label"><span class="tamanho-icone tamanho-g"></span><span class="tamanho-nome">Grande</span><span class="tamanho-desc">100%</span></span></label>' +
-    '</div>' +
-    '</div>' +
-    '</div>';
-}
-
-function adicionarImagemSecao(secaoIdx) {
-  const container = document.getElementById('secao-imgs-' + secaoIdx);
-  if (!container) return;
-  const div = document.createElement('div');
-  div.innerHTML = buildImagemHtml(secaoIdx, -1, null);
-  container.appendChild(div.firstChild);
-}
-
-function previewImgSecaoInline(input) {
-  const area = input.closest('.anexo-upload-area');
-  const file = input.files[0];
-  if (!file) return;
-  if (file.size > 10 * 1024 * 1024) { mostrarToast('Imagem muito grande. Máximo 10MB.', 'erro'); return; }
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    area.querySelector('.anexo-img').src = e.target.result;
-    area.querySelector('.anexo-placeholder').classList.add('oculto');
-    area.querySelector('.anexo-preview').classList.remove('oculto');
-  };
-  reader.readAsDataURL(file);
-}
-
-function removerImgSecaoPreview(btn) {
-  const area = btn.closest('.anexo-upload-area');
-  area.querySelector('.anexo-img').src = '';
-  area.querySelector('.anexo-placeholder').classList.remove('oculto');
-  area.querySelector('.anexo-preview').classList.add('oculto');
-}
-
-function coletarImagensSecao(secaoIdx) {
-  const container = document.getElementById('secao-imgs-' + secaoIdx);
-  if (!container) return [];
-  const imagens = [];
-  container.querySelectorAll('.img-secao-wrapper').forEach(function(wrapper) {
-    const imgEl = wrapper.querySelector('.anexo-img');
-    const legenda = (wrapper.querySelector('.img-secao-legenda') || {}).value || '';
-    const fonte = (wrapper.querySelector('.img-secao-fonte') || {}).value || '';
-    const tamanhoEl = wrapper.querySelector('.img-secao-tamanho:checked');
-    const tamanho = tamanhoEl ? tamanhoEl.value : 'medio';
-    const imgSrc = (imgEl && imgEl.src && !imgEl.src.endsWith('/')) ? imgEl.src : '';
-    if (imgSrc || legenda.trim()) {
-      imagens.push({ imagem: imgSrc, legenda: legenda.trim(), fonte: fonte.trim(), tamanho: tamanho });
-    }
-  });
-  return imagens;
 }
