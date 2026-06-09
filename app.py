@@ -701,6 +701,111 @@ def download(filename):
     )
 
 
+@app.route("/converter-para-abnt", methods=["POST"])
+def converter_para_abnt():
+    usuario = get_usuario()
+    if not usuario:
+        return jsonify({"erro": "Faça login para converter arquivos"}), 401
+    if not pode_gerar_pdf(usuario):
+        return jsonify({"erro": "limite_atingido"}), 403
+    if "arquivo" not in request.files:
+        return jsonify({"erro": "Nenhum arquivo enviado"}), 400
+    arquivo = request.files["arquivo"]
+    nome = arquivo.filename.lower()
+    if not (nome.endswith(".docx") or nome.endswith(".pdf")):
+        return jsonify({"erro": "Apenas .docx ou .pdf são aceitos"}), 400
+    dados_capa = {
+        "titulo":        request.form.get("titulo", "").strip(),
+        "autor":         request.form.get("autor", "").strip(),
+        "instituicao":   request.form.get("instituicao", "").strip(),
+        "curso":         request.form.get("curso", "").strip(),
+        "orientador":    request.form.get("orientador", "").strip(),
+        "cidade":        request.form.get("cidade", "").strip(),
+        "tipo_trabalho": request.form.get("tipo_trabalho", "Trabalho Acadêmico").strip(),
+        "ano":           request.form.get("ano", str(datetime.now().year)).strip(),
+        "campus": "", "disciplina": "", "turma": "", "mes": "",
+        "resumo": "", "palavras_chave": "", "referencias": "", "anexos": []
+    }
+    try:
+        secoes = []
+        if nome.endswith(".docx"):
+            import docx as _docx
+            doc = _docx.Document(arquivo)
+            secao_atual = None
+            conteudo_atual = []
+            for para in doc.paragraphs:
+                texto = para.text.strip()
+                if not texto:
+                    if conteudo_atual: conteudo_atual.append("")
+                    continue
+                eh_titulo = para.style.name.startswith("Heading") or (
+                    para.runs and all(run.bold for run in para.runs if run.text.strip()))
+                if eh_titulo:
+                    if secao_atual is not None:
+                        secoes.append({"titulo": secao_atual, "conteudo": "\n\n".join(c for c in conteudo_atual if c).strip()})
+                    secao_atual = texto
+                    conteudo_atual = []
+                else:
+                    conteudo_atual.append(texto)
+            if secao_atual is not None:
+                secoes.append({"titulo": secao_atual, "conteudo": "\n\n".join(c for c in conteudo_atual if c).strip()})
+            elif conteudo_atual:
+                secoes.append({"titulo": "Conteúdo", "conteudo": "\n\n".join(c for c in conteudo_atual if c).strip()})
+        elif nome.endswith(".pdf"):
+            import pdfplumber as _pdfplumber
+            texto_linhas = []
+            with _pdfplumber.open(arquivo) as pdf:
+                for page in pdf.pages:
+                    t = page.extract_text()
+                    if t: texto_linhas.append(t)
+            secoes = [{"titulo": "Conteúdo", "conteudo": "\n".join(texto_linhas).strip()}]
+        if not secoes:
+            return jsonify({"erro": "Não foi possível extrair conteúdo do arquivo."}), 400
+        dados_capa["secoes"] = secoes
+        filename = f"abnt_{uuid.uuid4().hex[:8]}.pdf"
+        filepath = os.path.join(UPLOAD_FOLDER, filename)
+        gerar_pdf_abnt(dados_capa, filepath)
+        registrar_geracao(usuario["id"])
+        return jsonify({"sucesso": True, "arquivo": filename})
+    except ImportError as e:
+        return jsonify({"erro": f"Dependência não instalada: {str(e)}"}), 500
+    except Exception as e:
+        import traceback; traceback.print_exc()
+        return jsonify({"erro": f"Erro ao processar: {str(e)}"}), 500
+
+
+@app.route("/converter-url-abnt", methods=["POST"])
+def converter_url_abnt():
+    usuario = get_usuario()
+    if not usuario:
+        return jsonify({"erro": "Não autenticado"}), 401
+    data = request.get_json()
+    url = (data or {}).get("url", "").strip()
+    if not url:
+        return jsonify({"erro": "URL inválida"}), 400
+    try:
+        import requests as _req
+        from urllib.parse import urlparse
+        parsed = urlparse(url)
+        dominio = parsed.netloc.replace("www.", "")
+        ano = datetime.now().year
+        # Tenta extrair título da página
+        titulo = url
+        try:
+            r = _req.get(url, timeout=6, headers={"User-Agent": "Mozilla/5.0"})
+            import re
+            match = re.search(r'<title[^>]*>(.*?)</title>', r.text, re.IGNORECASE | re.DOTALL)
+            if match:
+                titulo = re.sub(r'\s+', ' ', match.group(1)).strip()
+                titulo = re.sub(r'\s*[|\-–—].*$', '', titulo).strip()
+        except Exception:
+            pass
+        referencia = f"{titulo.upper()}. {dominio}. Disponível em: {url}. Acesso em: {datetime.now().strftime('%d %b. %Y').lower()}."
+        return jsonify({"referencia": referencia})
+    except Exception as e:
+        return jsonify({"erro": str(e)}), 500
+
+
 if __name__ == "__main__":
     init_db()
     app.run(debug=True, port=5000)
