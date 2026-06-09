@@ -1,3 +1,28 @@
+function atualizarPreenchimento() {
+  let pct = 0;
+  const titulo  = (document.getElementById("titulo")  || {}).value || "";
+  const autor   = (document.getElementById("autor")   || {}).value || "";
+  const inst    = (document.getElementById("instituicao") || {}).value || "";
+  const curso   = (document.getElementById("curso")   || {}).value || "";
+  const resumo  = (document.getElementById("resumo")  || {}).value || "";
+  const refs    = (document.getElementById("referencias") || {}).value || "";
+  if (titulo.trim())  pct += 20;
+  if (autor.trim())   pct += 20;
+  if (inst.trim())    pct += 10;
+  if (curso.trim())   pct += 10;
+  if (resumo.trim())  pct += 10;
+  if (refs.trim())    pct += 10;
+  // seções preenchidas
+  let temSecao = false;
+  document.querySelectorAll(".secao-textarea").forEach(function(t){ if (t.value.trim()) temSecao = true; });
+  if (temSecao) pct += 20;
+  pct = Math.min(pct, 100);
+  const fill = document.getElementById("preench-fill");
+  const pctEl = document.getElementById("preench-pct");
+  if (fill)  fill.style.width = pct + "%";
+  if (pctEl) pctEl.textContent = pct + "%";
+}
+
 let etapaAtual = 1;
 const TOTAL_ETAPAS = 3;
 
@@ -13,6 +38,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const anoInput = document.getElementById("ano");
   if (anoInput && !anoInput.value) anoInput.value = new Date().getFullYear();
   renderizarSecoes();
+  atualizarPreenchimento();
+
+  // Listeners para atualizar barra de preenchimento
+  ["titulo","autor","instituicao","curso","resumo","referencias"].forEach(function(id) {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener("input", atualizarPreenchimento);
+  });
 });
 
 function salvarSecoesDoDOM() {
@@ -94,6 +126,7 @@ function atualizarConteudoLive(i, val) {
     st.className   = "secao-status " + (val.trim() ? "tem-conteudo" : "sem-conteudo");
     st.textContent = val.trim() ? "✓ Será incluída no PDF" : "○ Em branco — não será incluída";
   }
+  atualizarPreenchimento();
 }
 
 function adicionarSecao() {
@@ -162,54 +195,6 @@ async function removerLogo(e) {
   document.getElementById("logo-img").src = "";
 }
 
-let _barraTimer = null;
-
-function _iniciarBarra() {
-  const wrap  = document.getElementById("barra-progresso-wrap");
-  const fill  = document.getElementById("barra-fill");
-  const pct   = document.getElementById("barra-pct");
-  const label = document.getElementById("barra-label");
-  if (!wrap) return;
-  wrap.classList.remove("oculto");
-  fill.style.width = "0%";
-  pct.textContent  = "0%";
-  label.textContent = "Preparando...";
-
-  const etapas = [
-    { w: 20,  t: 300,  msg: "Estruturando o documento..." },
-    { w: 45,  t: 800,  msg: "Aplicando formatação ABNT..." },
-    { w: 70,  t: 1500, msg: "Gerando capa e seções..." },
-    { w: 90,  t: 2400, msg: "Finalizando PDF..." },
-    { w: 99,  t: 3200, msg: "Quase pronto..." },
-  ];
-
-  etapas.forEach(function(e) {
-    _barraTimer = setTimeout(function() {
-      fill.style.width  = e.w + "%";
-      pct.textContent   = e.w + "%";
-      label.textContent = e.msg;
-    }, e.t);
-  });
-}
-
-function _finalizarBarra() {
-  clearTimeout(_barraTimer);
-  const fill  = document.getElementById("barra-fill");
-  const pct   = document.getElementById("barra-pct");
-  const label = document.getElementById("barra-label");
-  if (!fill) return;
-  fill.style.width  = "100%";
-  pct.textContent   = "100%";
-  label.textContent = "PDF gerado!";
-}
-
-function _resetarBarra() {
-  const wrap = document.getElementById("barra-progresso-wrap");
-  const fill = document.getElementById("barra-fill");
-  if (wrap) wrap.classList.add("oculto");
-  if (fill) fill.style.width = "0%";
-}
-
 async function gerarPDF() {
   if (!PODE_GERAR) { mostrarToast("Você já usou sua geração gratuita", "erro"); return; }
   salvarSecoesDoDOM();
@@ -220,7 +205,6 @@ async function gerarPDF() {
   btnTexto.classList.add("oculto");
   btnLoading.classList.remove("oculto");
   btnGerar.disabled = true;
-  _iniciarBarra();
 
   const dados = {
     titulo:         document.getElementById("titulo").value.trim(),
@@ -251,21 +235,15 @@ async function gerarPDF() {
 
     if (resp.status === 401) { window.location.href = "/"; return; }
     if (resp.status === 403) { mostrarToast("Limite atingido. Faça upgrade!", "erro"); return; }
-    if (!resp.ok || data.erro) { mostrarToast(data.erro || "Erro ao gerar PDF.", "erro"); _resetarBarra(); return; }
+    if (!resp.ok || data.erro) { mostrarToast(data.erro || "Erro ao gerar PDF.", "erro"); return; }
 
-    _finalizarBarra();
-    setTimeout(function() {
-      document.getElementById("link-download").href = "/download/" + data.arquivo;
-      document.getElementById("resultado").classList.remove("oculto");
-      document.getElementById("resultado").scrollIntoView({ behavior: "smooth", block: "center" });
-      mostrarToast("PDF gerado com sucesso!", "sucesso");
-      btnGerar.disabled = true;
-    }, 400);
+    document.getElementById("link-download").href = "/download/" + data.arquivo;
+    document.getElementById("resultado").classList.remove("oculto");
+    document.getElementById("resultado").scrollIntoView({ behavior: "smooth", block: "center" });
+    mostrarToast("PDF gerado com sucesso!", "sucesso");
+    btnGerar.disabled = true;
 
-  } catch {
-    mostrarToast("Erro de conexão.", "erro");
-    _resetarBarra();
-  }
+  } catch { mostrarToast("Erro de conexão.", "erro"); }
   finally {
     btnTexto.classList.remove("oculto");
     btnLoading.classList.add("oculto");
